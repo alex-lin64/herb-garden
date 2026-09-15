@@ -3,7 +3,9 @@
 #include <Arduino.h>
 #include <Adafruit_SHT31.h>
 #include <U8g2lib.h>
+
 #include "../State/State.h"
+#include "Input.h"
 
 class Hardware
 {
@@ -12,6 +14,8 @@ public:
 
     void updateSensors(
         SensorReadings &sensorReadings);
+
+    InputEvent getInput();
 
     U8G2_SH1106_128X64_NONAME_F_HW_I2C &getDisplay();
 

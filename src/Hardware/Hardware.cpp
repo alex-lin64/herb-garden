@@ -18,7 +18,15 @@ void Hardware::initI2C()
 
 void Hardware::initPins()
 {
-    pinMode(FLOAT_PIN, INPUT_PULLUP);
+    // Init float switch pin
+    pinMode(FLOAT_SWITCH_PIN, INPUT_PULLUP);
+
+    // Init rotary encoder and button pins
+    pinMode(OLED_CONFIRM_PIN, INPUT_PULLUP);
+    pinMode(OLED_PUSH_PIN, INPUT_PULLUP);
+    pinMode(OLED_ROTARY_CW_PIN, INPUT_PULLUP);
+    pinMode(OLED_ROTARY_CCW_PIN, INPUT_PULLUP);
+    pinMode(OLED_BACK_PIN, INPUT_PULLUP);
 }
 
 void Hardware::initSHT31()
@@ -57,10 +65,39 @@ void Hardware::updateSensors(
     sensorReadings.humidity = sht31.readHumidity();
 
     // Read float switch
-    sensorReadings.floatClosed = digitalRead(FLOAT_PIN) == LOW;
+    sensorReadings.floatClosed = digitalRead(FLOAT_SWITCH_PIN) == LOW;
 }
 
 U8G2_SH1106_128X64_NONAME_F_HW_I2C &Hardware::getDisplay()
 {
     return display;
+}
+
+InputEvent Hardware::getInput()
+{
+    if (digitalRead(OLED_ROTARY_CW_PIN) == LOW)
+    {
+        return InputEvent::ROTATE_CW;
+    }
+
+    if (digitalRead(OLED_ROTARY_CCW_PIN) == LOW)
+    {
+        return InputEvent::ROTATE_CCW;
+    }
+
+    if (digitalRead(OLED_PUSH_PIN) == LOW)
+    {
+        return InputEvent::ROTARY_PUSH;
+    }
+
+    if (digitalRead(OLED_BACK_PIN) == LOW)
+    {
+        return InputEvent::BACK;
+    }
+    if (digitalRead(OLED_CONFIRM_PIN) == LOW)
+    {
+        return InputEvent::CONFIRM;
+    }
+
+    return InputEvent::NONE;
 }

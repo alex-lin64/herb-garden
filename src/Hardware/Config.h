@@ -12,7 +12,7 @@ constexpr uint8_t SCL_PIN = 4;
 // Float switch
 // -------------------------
 
-constexpr uint8_t FLOAT_PIN = 6;
+constexpr uint8_t FLOAT_SWITCH_PIN = 6;
 
 // -------------------------
 // OLED / Rotary encoder
