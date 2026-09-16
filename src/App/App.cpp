@@ -7,6 +7,7 @@ void App::begin()
 
     hardware.begin();
     ui.begin(hardware);
+    ui.markScreenDirty(); // force home screen redraw on startup after the screen saver
 }
 
 void App::update()
@@ -16,12 +17,12 @@ void App::update()
     if (now - lastSensorUpdate >= SENSOR_INTERVAL)
     {
         lastSensorUpdate = now;
-        hardware.updateSensors(state.sensorReadings);
+
+        if (hardware.updateSensors(state.sensorReadings))
+        {
+            ui.markScreenDirty();
+        }
     }
 
-    if (now - lastDisplayUpdate >= DISPLAY_INTERVAL)
-    {
-        lastDisplayUpdate = now;
-        ui.update(state);
-    }
+    ui.update(state);
 }

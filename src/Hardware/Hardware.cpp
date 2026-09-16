@@ -99,16 +99,34 @@ void Hardware::initWiFiNTP()
     }
 }
 
-void Hardware::updateSensors(
+bool Hardware::updateSensors(
     SensorReadings &sensorReadings)
 {
+    // Save previous values
+    float oldTemperatureC = sensorReadings.temperatureC;
+    float oldTemperatureF = sensorReadings.temperatureF;
+    float oldHumidity = sensorReadings.humidity;
+    bool oldFloatClosed = sensorReadings.floatClosed;
+
     // Read SHT31 sensor
     sensorReadings.temperatureC = sht31.readTemperature();
-    sensorReadings.temperatureF = celsiusToFahrenheit(sensorReadings.temperatureC, -1.0f);
-    sensorReadings.humidity = sht31.readHumidity();
+    sensorReadings.temperatureF =
+        celsiusToFahrenheit(
+            sensorReadings.temperatureC,
+            -1.0f);
+
+    sensorReadings.humidity =
+        sht31.readHumidity();
 
     // Read float switch
-    sensorReadings.floatClosed = digitalRead(FLOAT_SWITCH_PIN) == LOW;
+    sensorReadings.floatClosed =
+        digitalRead(FLOAT_SWITCH_PIN) == LOW;
+
+    // Check whether anything changed
+    return sensorReadings.temperatureC != oldTemperatureC ||
+           sensorReadings.temperatureF != oldTemperatureF ||
+           sensorReadings.humidity != oldHumidity ||
+           sensorReadings.floatClosed != oldFloatClosed;
 }
 
 U8G2_SH1106_128X64_NONAME_F_HW_I2C &Hardware::getDisplay()

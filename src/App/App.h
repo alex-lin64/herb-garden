@@ -23,5 +23,4 @@ private:
     UI ui;
 
     unsigned long lastSensorUpdate = 0;
-    unsigned long lastDisplayUpdate = 0;
 };

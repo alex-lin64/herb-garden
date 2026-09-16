@@ -14,7 +14,8 @@ class Hardware
 public:
     void begin();
 
-    void updateSensors(
+    // true if sensor readings changed, false if no change
+    bool updateSensors(
         SensorReadings &sensorReadings);
 
     InputEvent getInput();

@@ -9,7 +9,12 @@ void UI::begin(Hardware &hardware)
 void UI::update(SystemState &state)
 {
     handleInput();
-    updateDisplay(state);
+
+    if (screenDirty)
+    {
+        updateDisplay(state);
+        markScreenClean();
+    }
 }
 
 void UI::handleInput()
