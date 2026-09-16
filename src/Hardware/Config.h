@@ -25,6 +25,11 @@ constexpr uint8_t OLED_ROTARY_CCW_PIN = 18;
 constexpr uint8_t OLED_BACK_PIN = 8;
 
 // -------------------------
+// Debounce timing
+// -------------------------
+constexpr unsigned long DEBOUNCE_MS = 10;
+
+// -------------------------
 // I2C addresses
 // -------------------------
 

@@ -9,6 +9,7 @@ void Hardware::begin()
     initPins();
     initSHT31();
     initDisplay();
+    initInputs();
 }
 
 void Hardware::initI2C()
@@ -56,6 +57,30 @@ void Hardware::initDisplay()
     delay(1000);
 }
 
+void Hardware::initInputs()
+{
+    ESP32Encoder::useInternalWeakPullResistors = puType::up;
+
+    encoder.attachHalfQuad(
+        OLED_ROTARY_CCW_PIN,
+        OLED_ROTARY_CW_PIN);
+
+    encoder.clearCount();
+    lastEncoderCount = encoder.getCount();
+
+    backButton.attach(OLED_BACK_PIN, INPUT_PULLUP);
+    backButton.interval(DEBOUNCE_MS);
+    backButton.setPressedState(LOW);
+
+    confirmButton.attach(OLED_CONFIRM_PIN, INPUT_PULLUP);
+    confirmButton.interval(DEBOUNCE_MS);
+    confirmButton.setPressedState(LOW);
+
+    rotaryPushButton.attach(OLED_PUSH_PIN, INPUT_PULLUP);
+    rotaryPushButton.interval(DEBOUNCE_MS);
+    rotaryPushButton.setPressedState(LOW);
+}
+
 void Hardware::updateSensors(
     SensorReadings &sensorReadings)
 {
@@ -75,29 +100,37 @@ U8G2_SH1106_128X64_NONAME_F_HW_I2C &Hardware::getDisplay()
 
 InputEvent Hardware::getInput()
 {
-    if (digitalRead(OLED_ROTARY_CW_PIN) == LOW)
+    // Update buttons
+    backButton.update();
+    confirmButton.update();
+    rotaryPushButton.update();
+
+    // Check rotary encoder
+    int64_t currentCount = encoder.getCount();
+    int64_t countDifference = currentCount - lastEncoderCount;
+
+    // Each rotary encoder step generates 2 counts, so we check for a difference of 2
+    if (countDifference >= 2)
     {
+        lastEncoderCount += 2;
         return InputEvent::ROTATE_CW;
     }
 
-    if (digitalRead(OLED_ROTARY_CCW_PIN) == LOW)
+    if (countDifference <= -2)
     {
+        lastEncoderCount -= 2;
         return InputEvent::ROTATE_CCW;
     }
 
-    if (digitalRead(OLED_PUSH_PIN) == LOW)
-    {
-        return InputEvent::ROTARY_PUSH;
-    }
-
-    if (digitalRead(OLED_BACK_PIN) == LOW)
-    {
+    // Check buttons
+    if (backButton.pressed())
         return InputEvent::BACK;
-    }
-    if (digitalRead(OLED_CONFIRM_PIN) == LOW)
-    {
+
+    if (confirmButton.pressed())
         return InputEvent::CONFIRM;
-    }
+
+    if (rotaryPushButton.pressed())
+        return InputEvent::ROTARY_PUSH;
 
     return InputEvent::NONE;
 }
