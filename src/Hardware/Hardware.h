@@ -27,6 +27,7 @@ private:
     void initDisplay();
     void initPins();
     void initInputs();
+    void initWiFiNTP();
 
     bool wasPressed(uint8_t pin, bool &lastState);
 

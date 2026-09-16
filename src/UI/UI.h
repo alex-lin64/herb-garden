@@ -17,5 +17,4 @@ private:
 
     void handleInput();
     void updateDisplay(SystemState &state);
-    void errorDisplay(const char *message);
 };

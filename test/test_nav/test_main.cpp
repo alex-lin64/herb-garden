@@ -1,8 +1,9 @@
 #include <unity.h>
+#include <Arduino.h>
 
 #include "../../src/UI/uiState.h"
 #include "../../src/State/State.h"
-#include "../../src/UI/Navigation.h"
+#include "../../src/UI/Navigation.cpp"
 
 void testCarouselRotateCW()
 {
@@ -88,8 +89,10 @@ void testCarouselBackReturnsToFirstPage()
         static_cast<int>(ui.screen));
 }
 
-int main(int argc, char **argv)
+void setup()
 {
+    delay(2000);
+
     UNITY_BEGIN();
 
     RUN_TEST(testCarouselRotateCW);
@@ -99,4 +102,8 @@ int main(int argc, char **argv)
     RUN_TEST(testCarouselBackReturnsToFirstPage);
 
     UNITY_END();
+}
+
+void loop()
+{
 }

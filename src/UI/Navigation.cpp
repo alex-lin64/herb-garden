@@ -1,6 +1,5 @@
 #include "Navigation.h"
-#include <iterator>
-#include <State/State.h>
+#include "../../src/State/State.h"
 
 void processInput(UIState &uiState, SystemState &systemState, InputEvent input)
 {

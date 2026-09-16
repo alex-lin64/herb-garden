@@ -35,3 +35,9 @@ constexpr unsigned long DEBOUNCE_MS = 10;
 
 constexpr uint8_t SHT31_ADDRESS = 0x44;
 constexpr uint8_t OLED_ADDRESS = 0x3C;
+
+// -------------------------
+// WiFi credentials
+// -------------------------
+#define WIFI_SSID "Verizon_6DG6DW"
+#define WIFI_PASSWORD "retail6bug5air"

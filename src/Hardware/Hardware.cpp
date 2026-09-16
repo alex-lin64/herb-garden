@@ -2,6 +2,8 @@
 #include "Config.h"
 #include "../Helpers/Helpers.h"
 #include "../State/State.h"
+#include <WiFi.h>
+#include <UI/Screens.h>
 
 void Hardware::begin()
 {
@@ -10,6 +12,7 @@ void Hardware::begin()
     initSHT31();
     initDisplay();
     initInputs();
+    initWiFiNTP();
 }
 
 void Hardware::initI2C()
@@ -44,17 +47,7 @@ void Hardware::initSHT31()
 void Hardware::initDisplay()
 {
     display.begin();
-    display.clearBuffer();
-
-    display.setFont(u8g2_font_ncenB08_tr);
-
-    display.drawStr(0, 15, "HERB HUB");
-    display.drawStr(0, 35, "OLED working!");
-    display.drawStr(0, 55, "128 x 64");
-
-    display.sendBuffer();
-
-    delay(1000);
+    drawScreenSaver(display);
 }
 
 void Hardware::initInputs()
@@ -79,6 +72,31 @@ void Hardware::initInputs()
     rotaryPushButton.attach(OLED_PUSH_PIN, INPUT_PULLUP);
     rotaryPushButton.interval(DEBOUNCE_MS);
     rotaryPushButton.setPressedState(LOW);
+}
+
+void Hardware::initWiFiNTP()
+{
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+    unsigned long startTime = millis();
+
+    while (WiFi.status() != WL_CONNECTED &&
+           millis() - startTime < 10000)
+    {
+        delay(500);
+    }
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        configTzTime(
+            "EST5EDT",
+            "pool.ntp.org",
+            "time.nist.gov");
+
+        struct tm timeinfo;
+
+        getLocalTime(&timeinfo, 10000);
+    }
 }
 
 void Hardware::updateSensors(
