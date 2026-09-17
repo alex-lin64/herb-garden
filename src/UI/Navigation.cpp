@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "Navigation.h"
 #include "../../src/State/State.h"
 
@@ -169,6 +171,7 @@ bool handleLightsSelect(
     {
         uiState.mode = UIMode::EDIT;
         uiState.editField = 0;
+        uiState.editSchedule = systemState.settings.lightSchedule;
 
         return true;
     }
@@ -190,26 +193,81 @@ bool handleLightsEdit(
 {
     if (input == InputEvent::ROTATE_CW)
     {
-        // TODO: Increase current field
+        if (uiState.selectedOption == 2)
+        {
+            uiState.editSchedule.frequencyDays =
+                uiState.editSchedule.frequencyDays % 9 + 1;
+        }
+        else if (uiState.selectedOption == 0)
+        {
+            if (uiState.editField == 0)
+                uiState.editSchedule.startHour =
+                    (uiState.editSchedule.startHour + 1) % 24;
+            else
+                uiState.editSchedule.startMinute =
+                    (uiState.editSchedule.startMinute + 1) % 60;
+        }
+        else
+        {
+            if (uiState.editField == 0)
+                uiState.editSchedule.endHour =
+                    (uiState.editSchedule.endHour + 1) % 24;
+            else
+                uiState.editSchedule.endMinute =
+                    (uiState.editSchedule.endMinute + 1) % 60;
+        }
+
         return true;
     }
 
     if (input == InputEvent::ROTATE_CCW)
     {
-        // TODO: Decrease current field
+        if (uiState.selectedOption == 2)
+        {
+            uiState.editSchedule.frequencyDays =
+                (uiState.editSchedule.frequencyDays + 7) % 9 + 1;
+        }
+        else if (uiState.selectedOption == 0)
+        {
+            if (uiState.editField == 0)
+                uiState.editSchedule.startHour =
+                    (uiState.editSchedule.startHour + 23) % 24;
+            else
+                uiState.editSchedule.startMinute =
+                    (uiState.editSchedule.startMinute + 59) % 60;
+        }
+        else
+        {
+            if (uiState.editField == 0)
+                uiState.editSchedule.endHour =
+                    (uiState.editSchedule.endHour + 23) % 24;
+            else
+                uiState.editSchedule.endMinute =
+                    (uiState.editSchedule.endMinute + 59) % 60;
+        }
+
         return true;
     }
 
     if (input == InputEvent::ROTARY_PUSH ||
         input == InputEvent::CONFIRM)
     {
-        // TODO: Move to next field
+        if (uiState.selectedOption < 2 && uiState.editField == 0)
+        {
+            uiState.editField = 1;
+            return true;
+        }
+
+        systemState.settings.lightSchedule = uiState.editSchedule;
+        uiState.mode = UIMode::SELECT;
+        uiState.editField = 0;
         return true;
     }
 
     if (input == InputEvent::BACK)
     {
         uiState.mode = UIMode::SELECT;
+        uiState.editField = 0;
 
         return true;
     }

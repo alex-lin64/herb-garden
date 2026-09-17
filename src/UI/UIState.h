@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../State/State.h"
+
 enum class Screen
 {
     // "home" pages carousel
@@ -54,12 +56,11 @@ struct UIState
     // Used by scrolling/selectable pages
     int selectedOption = 0;
 
+    // Used for multi-part values such as time
+    int editField = 0;
+
     // Used when editing a value
     int editValue = 0;
 
-    // Used for multi-part values such as timeout
-    int editField = 0;
-
-    // Whether the current edit has been changed but not saved
-    bool hasUnsavedChanges = false;
+    LightSchedule editSchedule;
 };
