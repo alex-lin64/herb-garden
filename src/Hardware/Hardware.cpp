@@ -76,27 +76,10 @@ void Hardware::initInputs()
 
 void Hardware::initWiFiNTP()
 {
+    WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-    unsigned long startTime = millis();
-
-    while (WiFi.status() != WL_CONNECTED &&
-           millis() - startTime < 10000)
-    {
-        delay(500);
-    }
-
-    if (WiFi.status() == WL_CONNECTED)
-    {
-        configTzTime(
-            "EST5EDT",
-            "pool.ntp.org",
-            "time.nist.gov");
-
-        struct tm timeinfo;
-
-        getLocalTime(&timeinfo, 10000);
-    }
+    Serial.println("Starting WiFi...");
 }
 
 bool Hardware::updateSensors(
@@ -172,4 +155,30 @@ InputEvent Hardware::getInput()
         return InputEvent::ROTARY_PUSH;
 
     return InputEvent::NONE;
+}
+
+void Hardware::updateWiFiNTP()
+{
+    static bool ntpStarted = false;
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        if (!ntpStarted)
+        {
+            Serial.println("WiFi connected!");
+
+            configTzTime(
+                "EST5EDT",
+                "pool.ntp.org",
+                "time.nist.gov");
+
+            ntpStarted = true;
+
+            Serial.println("NTP started.");
+        }
+    }
+    else
+    {
+        ntpStarted = false;
+    }
 }

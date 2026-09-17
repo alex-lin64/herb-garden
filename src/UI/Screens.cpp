@@ -4,6 +4,68 @@
 #include "UI.h"
 #include <time.h>
 
+void drawHeader(
+    U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
+    SystemState &state,
+    const char *title)
+{
+    display.setFont(u8g2_font_6x10_tr);
+
+    // --------------------------------------------------
+    // Current time - HH:MM, 24-hour format
+    // --------------------------------------------------
+
+    struct tm timeinfo;
+
+    if (getLocalTime(&timeinfo, 0))
+    {
+        char timeText[6];
+
+        strftime(
+            timeText,
+            sizeof(timeText),
+            "%H:%M",
+            &timeinfo);
+
+        display.drawStr(0, 9, timeText);
+    }
+    else
+    {
+        display.drawStr(0, 9, "--:--");
+    }
+
+    // --------------------------------------------------
+    // Title - centered
+    // --------------------------------------------------
+
+    int titleWidth = display.getStrWidth(title);
+
+    display.drawStr(
+        (128 - titleWidth) / 2,
+        9,
+        title);
+
+    // --------------------------------------------------
+    // Mode - right aligned
+    // --------------------------------------------------
+
+    const char *modeText =
+        state.settings.modeAuto ? "AUTO" : "MAN";
+
+    int modeWidth = display.getStrWidth(modeText);
+
+    display.drawStr(
+        128 - modeWidth,
+        9,
+        modeText);
+
+    // --------------------------------------------------
+    // Header separator
+    // --------------------------------------------------
+
+    display.drawHLine(0, 12, 128);
+}
+
 void drawScreenSaver(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display)
 {
     display.clearBuffer();
@@ -58,7 +120,9 @@ void drawScreenSaver(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display)
     delay(1000);
 }
 
-void drawHomeScreen(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display, SystemState &state)
+void drawHomeScreen(
+    U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
+    SystemState &state)
 {
     display.clearBuffer();
 
@@ -66,51 +130,7 @@ void drawHomeScreen(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display, SystemState &st
     // Header
     // --------------------------------------------------
 
-    display.setFont(u8g2_font_6x10_tr);
-
-    // Current time - HH:MM, 24-hour format
-    struct tm timeinfo;
-
-    if (getLocalTime(&timeinfo))
-    {
-        char timeText[6];
-
-        strftime(
-            timeText,
-            sizeof(timeText),
-            "%H:%M",
-            &timeinfo);
-
-        display.drawStr(0, 9, timeText);
-    }
-    else
-    {
-        display.drawStr(0, 9, "--:--");
-    }
-
-    // HERB HUB centered
-    const char *title = "HERB HUB";
-
-    int titleWidth = display.getStrWidth(title);
-
-    display.drawStr(
-        (128 - titleWidth) / 2,
-        9,
-        title);
-
-    // Mode on right
-    const char *modeText =
-        state.settings.modeAuto ? "AUTO" : "MAN";
-
-    int modeWidth = display.getStrWidth(modeText);
-
-    display.drawStr(
-        128 - modeWidth,
-        9,
-        modeText);
-
-    // Header separator
-    display.drawHLine(0, 12, 128);
+    drawHeader(display, state, "HERB HUB");
 
     // --------------------------------------------------
     // Temperature / Humidity
@@ -199,7 +219,6 @@ void drawHomeScreen(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display, SystemState &st
 
     if (state.settings.modeAuto)
     {
-        // Placeholder until watering schedule is added
         const char *nextWaterText = "Next: --:--";
 
         int nextWidth = display.getStrWidth(nextWaterText);
@@ -209,6 +228,19 @@ void drawHomeScreen(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display, SystemState &st
             63,
             nextWaterText);
     }
+
+    display.sendBuffer();
+}
+
+void drawLightsScreen(
+    U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
+    SystemState &state)
+{
+    display.clearBuffer();
+
+    drawHeader(display, state, "LIGHTS");
+
+    // Lights screen content goes here...
 
     display.sendBuffer();
 }

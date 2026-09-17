@@ -18,9 +18,9 @@ enum class Screen
 constexpr Screen CAROUSEL_SCREENS_AUTO[] = {
     Screen::HOME,
     Screen::LIGHTS,
-    Screen::FANS,
-    Screen::WATER,
-    Screen::MODE,
+    // Screen::FANS,
+    // Screen::WATER,
+    // Screen::MODE,
 };
 
 constexpr int CAROUSEL_SCREEN_COUNT_AUTO = sizeof(CAROUSEL_SCREENS_AUTO) / sizeof(CAROUSEL_SCREENS_AUTO[0]);
@@ -35,9 +35,17 @@ constexpr Screen CAROUSEL_SCREENS_MANUAL[] = {
 
 constexpr int CAROUSEL_SCREEN_COUNT_MANUAL = sizeof(CAROUSEL_SCREENS_MANUAL) / sizeof(CAROUSEL_SCREENS_MANUAL[0]);
 
+enum class UIMode
+{
+    VIEW,
+    SELECT,
+    EDIT
+};
+
 struct UIState
 {
     Screen screen = Screen::HOME;
+    UIMode mode = UIMode::VIEW;
 
     int carouselIndex = 0;
 

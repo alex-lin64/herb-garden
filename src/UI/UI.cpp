@@ -41,7 +41,9 @@ void UI::updateDisplay(SystemState &state)
     case Screen::HOME:
         drawHomeScreen(display, state);
         break;
-
+    case Screen::LIGHTS:
+        drawLightsScreen(display, state);
+        break;
     default:
         drawHomeScreen(display, state);
         break;

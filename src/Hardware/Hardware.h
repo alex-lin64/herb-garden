@@ -17,8 +17,8 @@ public:
     // true if sensor readings changed, false if no change
     bool updateSensors(
         SensorReadings &sensorReadings);
-
     InputEvent getInput();
+    void updateWiFiNTP();
 
     U8G2_SH1106_128X64_NONAME_F_HW_I2C &getDisplay();
 

@@ -18,3 +18,23 @@ bool handleHome(
     UIState &uiState,
     SystemState &systemState,
     InputEvent input);
+
+bool handleLights(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleLightsView(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleLightsSelect(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleLightsEdit(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
