@@ -5,7 +5,7 @@
 #include <time.h>
 
 void drawHeader(
-    U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
+    Display &display,
     const SystemState &state,
     const char *title)
 {
@@ -66,7 +66,7 @@ void drawHeader(
     display.drawHLine(0, 12, 128);
 }
 
-void drawScreenSaver(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display)
+void drawScreenSaver(Display &display)
 {
     display.clearBuffer();
 
@@ -119,8 +119,8 @@ void drawScreenSaver(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display)
 }
 
 void drawHomeScreen(
-    U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
-    SystemState &state)
+    Display &display,
+    const SystemState &state)
 {
     display.clearBuffer();
 
@@ -231,8 +231,8 @@ void drawHomeScreen(
 }
 
 void drawLightsScreen(
-    U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
-    SystemState &state,
+    Display &display,
+    const SystemState &state,
     const UIState &uiState)
 {
     constexpr int TIME_COLON_OFFSET = 1;
