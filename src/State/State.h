@@ -25,11 +25,6 @@ struct SystemSettings
     bool modeAuto = DEFAULT_MODE_AUTO;
     bool useFahrenheit = DEFAULT_USE_FAHRENHEIT;
 
-    int brightness = DEFAULT_BRIGHTNESS;
-
-    int timeoutMinutes = DEFAULT_TIMEOUT_MINUTES;
-    int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
-
     LightSchedule lightSchedule;
     DurationSchedule waterSchedule;
     DurationSchedule fansSchedule;

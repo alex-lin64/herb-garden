@@ -528,3 +528,15 @@ void drawLightsScreen(
 
     display.sendBuffer();
 }
+
+void drawFansScreen(
+    Display &display,
+    const SystemState &state,
+    const UIState &uiState)
+{
+    display.clearBuffer();
+
+    drawHeader(display, state, "FANS");
+
+    display.sendBuffer();
+}

@@ -19,3 +19,7 @@ void drawLightsScreen(
     Display &display,
     const SystemState &state,
     const UIState &uiState);
+void drawFansScreen(
+    Display &display,
+    const SystemState &state,
+    const UIState &uiState);

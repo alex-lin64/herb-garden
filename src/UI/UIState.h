@@ -22,7 +22,7 @@ enum class Screen
 constexpr Screen CAROUSEL_SCREENS_AUTO[] = {
     Screen::HOME,
     Screen::LIGHTS,
-    // Screen::FANS,
+    Screen::FANS,
     // Screen::WATER,
     // Screen::MODE,
 };

@@ -85,6 +85,7 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
     case Screen::LIGHTS:
         return handleLights(uiState, systemState, input);
     case Screen::FANS:
+        return handleFans(uiState, systemState, input);
     case Screen::WATER:
     case Screen::MODE:
     case Screen::LIGHTS_MANUAL:
@@ -142,7 +143,7 @@ bool handleLights(
     switch (uiState.mode)
     {
     case UIMode::VIEW:
-        return handleLightsView(uiState, systemState, input);
+        return handleView(uiState, systemState, input);
 
     case UIMode::SELECT:
         return handleLightsSelect(uiState, systemState, input);
@@ -154,7 +155,7 @@ bool handleLights(
     return false;
 }
 
-bool handleLightsView(
+bool handleView(
     UIState &uiState,
     SystemState &systemState,
     InputEvent input)
@@ -292,5 +293,41 @@ bool handleLightsEdit(
         return true;
     }
 
+    return false;
+}
+
+bool handleFans(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    switch (uiState.mode)
+    {
+    case UIMode::VIEW:
+        return handleView(uiState, systemState, input);
+
+    case UIMode::SELECT:
+        return handleFansSelect(uiState, systemState, input);
+
+    case UIMode::EDIT:
+        return handleFansEdit(uiState, systemState, input);
+    }
+
+    return false;
+}
+
+bool handleFansSelect(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    return false;
+}
+
+bool handleFansEdit(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
     return false;
 }

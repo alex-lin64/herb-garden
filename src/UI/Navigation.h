@@ -27,7 +27,7 @@ bool handleLights(
     SystemState &systemState,
     InputEvent input);
 
-bool handleLightsView(
+bool handleView(
     UIState &uiState,
     SystemState &systemState,
     InputEvent input);
@@ -38,6 +38,21 @@ bool handleLightsSelect(
     InputEvent input);
 
 bool handleLightsEdit(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleFans(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleFansSelect(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleFansEdit(
     UIState &uiState,
     SystemState &systemState,
     InputEvent input);
