@@ -12,7 +12,9 @@ enum class Screen
     // manual mode versions of the screens
     LIGHTS_MANUAL,
     FANS_MANUAL,
-    WATER_MANUAL
+    WATER_MANUAL,
+
+    SCREEN_SAVER,
 };
 
 constexpr Screen CAROUSEL_SCREENS_AUTO[] = {

@@ -19,6 +19,8 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
 {
     switch (uiState.screen)
     {
+    case Screen::SCREEN_SAVER:
+        return handleScreenSaver(uiState);
     case Screen::HOME:
         return handleHome(uiState, systemState, input);
     case Screen::LIGHTS:
@@ -33,6 +35,15 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
     }
 
     return false; // No change in screen
+}
+
+bool handleScreenSaver(UIState &uiState)
+{
+    // Any input should exit the screen saver
+    uiState.screen = Screen::HOME;
+    uiState.carouselIndex = 0;
+
+    return true; // Indicate that the screen has changed
 }
 
 bool handleHome(UIState &uiState, SystemState &systemState, InputEvent input)
@@ -51,7 +62,12 @@ bool handleHome(UIState &uiState, SystemState &systemState, InputEvent input)
         uiState.screen = activeCarousel.screens[uiState.carouselIndex];
         return true; // Indicate that the screen has changed
     }
-    if (input == InputEvent::BACK || input == InputEvent::ROTARY_PUSH || input == InputEvent::CONFIRM)
+    if (input == InputEvent::BACK)
+    {
+        uiState.screen = Screen::SCREEN_SAVER;
+        return true; // Indicate that the screen has changed
+    }
+    if (input == InputEvent::ROTARY_PUSH || input == InputEvent::CONFIRM)
     {
         // TODO -- nothing mapped to these inputs on the home screen yet
         return false;
@@ -136,13 +152,15 @@ bool handleLightsSelect(
 {
     if (input == InputEvent::ROTATE_CW)
     {
-        uiState.selectedOption++;
+        uiState.selectedOption =
+            (uiState.selectedOption + 1) % LIGHT_OPTION_COUNT;
         return true;
     }
 
     if (input == InputEvent::ROTATE_CCW)
     {
-        uiState.selectedOption--;
+        uiState.selectedOption =
+            (uiState.selectedOption - 1 + LIGHT_OPTION_COUNT) % LIGHT_OPTION_COUNT;
         return true;
     }
 

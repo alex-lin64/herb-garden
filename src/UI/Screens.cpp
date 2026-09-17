@@ -116,8 +116,6 @@ void drawScreenSaver(U8G2_SH1106_128X64_NONAME_F_HW_I2C &display)
     display.setDrawColor(1);
 
     display.sendBuffer();
-
-    delay(1000);
 }
 
 void drawHomeScreen(
@@ -234,13 +232,85 @@ void drawHomeScreen(
 
 void drawLightsScreen(
     U8G2_SH1106_128X64_NONAME_F_HW_I2C &display,
-    SystemState &state)
+    SystemState &state,
+    const UIState &uiState)
 {
     display.clearBuffer();
 
     drawHeader(display, state, "LIGHTS");
 
-    // Lights screen content goes here...
+    const LightSchedule &schedule = state.settings.lightSchedule;
+    const char *columnLabels[] = {
+        "BEG",
+        "END",
+        "FRQ"};
+    char beginValue[8];
+    char endValue[8];
+    char frequencyValue[8];
+
+    snprintf(
+        beginValue,
+        sizeof(beginValue),
+        "%02d:%02d",
+        schedule.startHour,
+        schedule.startMinute);
+
+    snprintf(
+        endValue,
+        sizeof(endValue),
+        "%02d:%02d",
+        schedule.endHour,
+        schedule.endMinute);
+
+    snprintf(
+        frequencyValue,
+        sizeof(frequencyValue),
+        "%dd",
+        schedule.frequencyDays);
+
+    const char *columnValues[] = {
+        beginValue,
+        endValue,
+        frequencyValue};
+
+    for (int column = 0; column < LIGHT_OPTION_COUNT; column++)
+    {
+        int columnLeft = column * 43;
+        int columnWidth = 42;
+        bool selected =
+            uiState.mode == UIMode::SELECT &&
+            uiState.selectedOption == column;
+
+        display.setFont(u8g2_font_7x13B_tr);
+        int valueWidth = display.getStrWidth(columnValues[column]);
+        int valueX = columnLeft + (columnWidth - valueWidth) / 2;
+
+        if (selected)
+        {
+            display.setDrawColor(1);
+            display.drawBox(valueX - 3, 21, valueWidth + 6, 18);
+            display.setDrawColor(0);
+        }
+        else
+        {
+            display.setDrawColor(1);
+        }
+
+        display.drawStr(
+            valueX,
+            36,
+            columnValues[column]);
+
+        display.setDrawColor(1);
+        display.setFont(u8g2_font_6x10_tr);
+        int labelWidth = display.getStrWidth(columnLabels[column]);
+        display.drawStr(
+            columnLeft + (columnWidth - labelWidth) / 2,
+            55,
+            columnLabels[column]);
+    }
+
+    display.setDrawColor(1);
 
     display.sendBuffer();
 }

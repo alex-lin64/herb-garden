@@ -9,8 +9,8 @@ void Hardware::begin()
 {
     initI2C();
     initPins();
-    initSHT31();
     initDisplay();
+    initSHT31();
     initInputs();
     initWiFiNTP();
 }
@@ -48,6 +48,7 @@ void Hardware::initDisplay()
 {
     display.begin();
     drawScreenSaver(display);
+    delay(1000);
 }
 
 void Hardware::initInputs()

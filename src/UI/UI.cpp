@@ -38,11 +38,14 @@ void UI::updateDisplay(SystemState &state)
 
     switch (uiState.screen)
     {
+    case Screen::SCREEN_SAVER:
+        drawScreenSaver(display);
+        break;
     case Screen::HOME:
         drawHomeScreen(display, state);
         break;
     case Screen::LIGHTS:
-        drawLightsScreen(display, state);
+        drawLightsScreen(display, state, uiState);
         break;
     default:
         drawHomeScreen(display, state);

@@ -12,6 +12,7 @@ void App::begin()
 void App::update()
 {
     unsigned long now = millis();
+
     hardware.updateWiFiNTP();
 
     if (now - lastSensorUpdate >= SENSOR_INTERVAL)

@@ -14,6 +14,9 @@ Carousel getActiveCarousel(const SystemState &systemState);
 
 bool processInput(UIState &uiState, SystemState &systemState, InputEvent input);
 
+bool handleScreenSaver(
+    UIState &uiState);
+
 bool handleHome(
     UIState &uiState,
     SystemState &systemState,
