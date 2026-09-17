@@ -12,6 +12,14 @@ struct LightSchedule
 
 constexpr int LIGHT_OPTION_COUNT = 3;
 
+struct DurationSchedule
+{
+    int durationMinutes;
+    int frequencyHours;
+};
+
+constexpr int DURATION_OPTION_COUNT = 2;
+
 struct SystemSettings
 {
     bool modeAuto = DEFAULT_MODE_AUTO;
@@ -23,6 +31,8 @@ struct SystemSettings
     int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS;
 
     LightSchedule lightSchedule;
+    DurationSchedule waterSchedule;
+    DurationSchedule fansSchedule;
 };
 
 struct SensorReadings

@@ -4,11 +4,20 @@
 #include "UI.h"
 #include <time.h>
 
+namespace
+{
+    constexpr int DISPLAY_WIDTH = 128;
+    constexpr int DISPLAY_HEIGHT = 64;
+}
+
 void drawHeader(
     Display &display,
     const SystemState &state,
     const char *title)
 {
+    constexpr int HEADER_BASELINE = 9;
+    constexpr int HEADER_SEPARATOR_Y = 12;
+
     display.setFont(u8g2_font_6x10_tr);
 
     // --------------------------------------------------
@@ -27,11 +36,11 @@ void drawHeader(
             "%H:%M",
             &timeinfo);
 
-        display.drawStr(0, 9, timeText);
+        display.drawStr(0, HEADER_BASELINE, timeText);
     }
     else
     {
-        display.drawStr(0, 9, "--:--");
+        display.drawStr(0, HEADER_BASELINE, "--:--");
     }
 
     // --------------------------------------------------
@@ -39,10 +48,11 @@ void drawHeader(
     // --------------------------------------------------
 
     int titleWidth = display.getStrWidth(title);
+    int titleX = (DISPLAY_WIDTH - titleWidth) / 2;
 
     display.drawStr(
-        (128 - titleWidth) / 2,
-        9,
+        titleX,
+        HEADER_BASELINE,
         title);
 
     // --------------------------------------------------
@@ -55,19 +65,25 @@ void drawHeader(
     int modeWidth = display.getStrWidth(modeText);
 
     display.drawStr(
-        128 - modeWidth,
-        9,
+        DISPLAY_WIDTH - modeWidth,
+        HEADER_BASELINE,
         modeText);
 
     // --------------------------------------------------
     // Header separator
     // --------------------------------------------------
 
-    display.drawHLine(0, 12, 128);
+    display.drawHLine(0, HEADER_SEPARATOR_Y, DISPLAY_WIDTH);
 }
 
 void drawScreenSaver(Display &display)
 {
+    constexpr int LOGO_GAP = 5;
+    constexpr int LOGO_BOX_PADDING = 8;
+    constexpr int LOGO_BOX_HEIGHT = 30;
+    constexpr int LOGO_CORNER_RADIUS = 5;
+    constexpr int LOGO_TEXT_BASELINE_OFFSET = 21;
+
     display.clearBuffer();
 
     display.setFont(u8g2_font_helvB14_tr);
@@ -78,23 +94,20 @@ void drawScreenSaver(Display &display)
     int herbWidth = display.getStrWidth(herbText);
     int hubWidth = display.getStrWidth(hubText);
 
-    int gap = 5;
-    int boxPadding = 8;
+    int boxWidth = hubWidth + LOGO_BOX_PADDING * 2;
+    int boxHeight = LOGO_BOX_HEIGHT;
 
-    int boxWidth = hubWidth + boxPadding * 2;
-    int boxHeight = 30;
+    int totalWidth = herbWidth + LOGO_GAP + boxWidth;
+    int startX = (DISPLAY_WIDTH - totalWidth) / 2;
 
-    int totalWidth = herbWidth + gap + boxWidth;
-    int startX = (128 - totalWidth) / 2;
-
-    int boxX = startX + herbWidth + gap;
-    int boxY = (64 - boxHeight) / 2;
+    int boxX = startX + herbWidth + LOGO_GAP;
+    int boxY = (DISPLAY_HEIGHT - boxHeight) / 2;
 
     // HERB
     display.setDrawColor(1);
     display.drawStr(
         startX,
-        boxY + 21,
+        boxY + LOGO_TEXT_BASELINE_OFFSET,
         herbText);
 
     // HUB box
@@ -103,14 +116,14 @@ void drawScreenSaver(Display &display)
         boxY,
         boxWidth,
         boxHeight,
-        5);
+        LOGO_CORNER_RADIUS);
 
     // HUB text
     display.setDrawColor(0);
 
     display.drawStr(
-        boxX + boxPadding,
-        boxY + 21,
+        boxX + LOGO_BOX_PADDING,
+        boxY + LOGO_TEXT_BASELINE_OFFSET,
         hubText);
 
     display.setDrawColor(1);
@@ -122,6 +135,13 @@ void drawHomeScreen(
     Display &display,
     const SystemState &state)
 {
+    constexpr int LEFT_COLUMN_CENTER = 32;
+    constexpr int RIGHT_COLUMN_CENTER = 96;
+    constexpr int VALUE_BASELINE = 31;
+    constexpr int LABEL_BASELINE = 42;
+    constexpr int STATUS_BASELINE = 53;
+    constexpr int FOOTER_BASELINE = 63;
+
     display.clearBuffer();
 
     // --------------------------------------------------
@@ -162,18 +182,21 @@ void drawHomeScreen(
 
     // Center temperature in left half
     int tempWidth = display.getStrWidth(tempText);
+    int leftColumnWidth = LEFT_COLUMN_CENTER * 2;
+    int tempX = (leftColumnWidth - tempWidth) / 2;
 
     display.drawStr(
-        (64 - tempWidth) / 2,
-        31,
+        tempX,
+        VALUE_BASELINE,
         tempText);
 
     // Center humidity in right half
     int humidityWidth = display.getStrWidth(humidityText);
+    int humidityX = RIGHT_COLUMN_CENTER - humidityWidth / 2;
 
     display.drawStr(
-        64 + (64 - humidityWidth) / 2,
-        31,
+        humidityX,
+        VALUE_BASELINE,
         humidityText);
 
     // Small labels
@@ -184,15 +207,17 @@ void drawHomeScreen(
 
     int tempLabelWidth = display.getStrWidth(tempLabel);
     int humidityLabelWidth = display.getStrWidth(humidityLabel);
+    int tempLabelX = (leftColumnWidth - tempLabelWidth) / 2;
+    int humidityLabelX = RIGHT_COLUMN_CENTER - humidityLabelWidth / 2;
 
     display.drawStr(
-        (64 - tempLabelWidth) / 2,
-        42,
+        tempLabelX,
+        LABEL_BASELINE,
         tempLabel);
 
     display.drawStr(
-        64 + (64 - humidityLabelWidth) / 2,
-        42,
+        humidityLabelX,
+        LABEL_BASELINE,
         humidityLabel);
 
     // --------------------------------------------------
@@ -205,10 +230,11 @@ void drawHomeScreen(
             : "WATER LOW";
 
     int waterWidth = display.getStrWidth(waterText);
+    int waterX = (DISPLAY_WIDTH - waterWidth) / 2;
 
     display.drawStr(
-        (128 - waterWidth) / 2,
-        53,
+        waterX,
+        STATUS_BASELINE,
         waterText);
 
     // --------------------------------------------------
@@ -220,10 +246,11 @@ void drawHomeScreen(
         const char *nextWaterText = "Next: --:--";
 
         int nextWidth = display.getStrWidth(nextWaterText);
+        int nextX = (DISPLAY_WIDTH - nextWidth) / 2;
 
         display.drawStr(
-            (128 - nextWidth) / 2,
-            63,
+            nextX,
+            FOOTER_BASELINE,
             nextWaterText);
     }
 
@@ -237,6 +264,21 @@ void drawLightsScreen(
 {
     constexpr int TIME_COLON_OFFSET = 1;
     constexpr int TIME_MINUTE_OFFSET = 2;
+    constexpr int MINUTE_TEXT_OFFSET = 3;
+    constexpr int TIME_COLUMN_COUNT = 2;
+    constexpr int HOUR_FIELD = 0;
+    constexpr int MINUTE_FIELD = 1;
+    constexpr int COLUMN_STEP = 43;
+    constexpr int COLUMN_WIDTH = 42;
+    constexpr int SELECTION_TOP = 21;
+    constexpr int SELECTION_HEIGHT = 18;
+    constexpr int EDIT_TOP = 22;
+    constexpr int EDIT_HEIGHT = 17;
+    constexpr int VALUE_BASELINE = 36;
+    constexpr int LABEL_BASELINE = 55;
+    constexpr int SELECTION_PADDING = 3;
+    constexpr int EDIT_PADDING = 2;
+    constexpr int EDIT_CORNER_RADIUS = 2;
 
     display.clearBuffer();
 
@@ -283,8 +325,8 @@ void drawLightsScreen(
 
     for (int column = 0; column < LIGHT_OPTION_COUNT; column++)
     {
-        int columnLeft = column * 43;
-        int columnWidth = 42;
+        int columnLeft = column * COLUMN_STEP;
+        int columnWidth = COLUMN_WIDTH;
 
         bool selected =
             (uiState.mode == UIMode::SELECT ||
@@ -312,16 +354,16 @@ void drawLightsScreen(
             display.setDrawColor(1);
 
             display.drawBox(
-                valueX - 3,
-                21,
-                valueWidth + 6,
-                18);
+                valueX - SELECTION_PADDING,
+                SELECTION_TOP,
+                valueWidth + SELECTION_PADDING * 2,
+                SELECTION_HEIGHT);
 
             display.setDrawColor(0);
 
             display.drawStr(
                 valueX,
-                36,
+                VALUE_BASELINE,
                 columnValues[column]);
 
             display.setDrawColor(1);
@@ -333,14 +375,14 @@ void drawLightsScreen(
 
         else if (selected && uiState.mode == UIMode::EDIT)
         {
-            if (column < 2)
+            if (column < TIME_COLUMN_COUNT)
             {
                 // Draw the complete time normally first
                 display.setDrawColor(1);
 
                 display.drawStr(
                     valueX,
-                    36,
+                    VALUE_BASELINE,
                     columnValues[column]);
 
                 int hourWidth =
@@ -361,16 +403,16 @@ void drawLightsScreen(
                 // --------------------------------------------------
 
                 int highlightX =
-                    uiState.editField == 0
+                    uiState.editField == HOUR_FIELD
                         ? valueX
                         : minuteX;
 
                 display.drawRBox(
-                    highlightX - 2,
-                    22,
-                    hourWidth + 4,
-                    17,
-                    2);
+                    highlightX - EDIT_PADDING,
+                    EDIT_TOP,
+                    hourWidth + EDIT_PADDING * 2,
+                    EDIT_HEIGHT,
+                    EDIT_CORNER_RADIUS);
 
                 // --------------------------------------------------
                 // Redraw hour
@@ -382,7 +424,7 @@ void drawLightsScreen(
                 hourText[1] = columnValues[column][1];
                 hourText[2] = '\0';
 
-                if (uiState.editField == 0)
+                if (uiState.editField == HOUR_FIELD)
                 {
                     // Hour selected: black on white
                     display.setDrawColor(0);
@@ -395,14 +437,14 @@ void drawLightsScreen(
 
                 display.drawStr(
                     valueX,
-                    36,
+                    VALUE_BASELINE,
                     hourText);
 
                 // --------------------------------------------------
                 // Redraw minute
                 // --------------------------------------------------
 
-                if (uiState.editField == 1)
+                if (uiState.editField == MINUTE_FIELD)
                 {
                     // Minute selected: black on white
                     display.setDrawColor(0);
@@ -415,8 +457,8 @@ void drawLightsScreen(
 
                 display.drawStr(
                     minuteX,
-                    36,
-                    columnValues[column] + 3);
+                    VALUE_BASELINE,
+                    columnValues[column] + MINUTE_TEXT_OFFSET);
 
                 // --------------------------------------------------
                 // Colon always normal
@@ -426,7 +468,7 @@ void drawLightsScreen(
 
                 display.drawStr(
                     colonX,
-                    36,
+                    VALUE_BASELINE,
                     ":");
             }
             else
@@ -435,17 +477,17 @@ void drawLightsScreen(
                 display.setDrawColor(1);
 
                 display.drawRBox(
-                    valueX - 2,
-                    22,
-                    valueWidth + 4,
-                    17,
-                    2);
+                    valueX - EDIT_PADDING,
+                    EDIT_TOP,
+                    valueWidth + EDIT_PADDING * 2,
+                    EDIT_HEIGHT,
+                    EDIT_CORNER_RADIUS);
 
                 display.setDrawColor(0);
 
                 display.drawStr(
                     valueX,
-                    36,
+                    VALUE_BASELINE,
                     columnValues[column]);
 
                 display.setDrawColor(1);
@@ -462,7 +504,7 @@ void drawLightsScreen(
 
             display.drawStr(
                 valueX,
-                36,
+                VALUE_BASELINE,
                 columnValues[column]);
         }
 
@@ -478,7 +520,7 @@ void drawLightsScreen(
 
         display.drawStr(
             columnLeft + (columnWidth - labelWidth) / 2,
-            55,
+            LABEL_BASELINE,
             columnLabels[column]);
     }
 

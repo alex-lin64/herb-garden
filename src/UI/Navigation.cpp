@@ -3,6 +3,63 @@
 #include "Navigation.h"
 #include "../../src/State/State.h"
 
+namespace
+{
+    constexpr int HOURS_PER_DAY = 24;
+    constexpr int MINUTES_PER_HOUR = 60;
+    constexpr int LIGHT_FREQUENCY_MIN = 1;
+    constexpr int LIGHT_FREQUENCY_MAX = 9;
+
+    constexpr int START_TIME_OPTION = 0;
+    constexpr int FREQUENCY_OPTION = 2;
+    constexpr int TIME_OPTION_COUNT = 2;
+    constexpr int HOUR_FIELD = 0;
+
+    int wrapValue(int value, int delta, int minimum, int maximum)
+    {
+        int range = maximum - minimum + 1;
+        int normalizedValue = value - minimum + delta;
+
+        normalizedValue = (normalizedValue % range + range) % range;
+
+        return normalizedValue + minimum;
+    }
+
+    void adjustLightSchedule(
+        LightSchedule &schedule,
+        int selectedOption,
+        int editField,
+        int delta)
+    {
+        if (selectedOption == FREQUENCY_OPTION)
+        {
+            schedule.frequencyDays = wrapValue(
+                schedule.frequencyDays,
+                delta,
+                LIGHT_FREQUENCY_MIN,
+                LIGHT_FREQUENCY_MAX);
+            return;
+        }
+
+        int &hour = selectedOption == START_TIME_OPTION
+                        ? schedule.startHour
+                        : schedule.endHour;
+
+        int &minute = selectedOption == START_TIME_OPTION
+                          ? schedule.startMinute
+                          : schedule.endMinute;
+
+        if (editField == HOUR_FIELD)
+        {
+            hour = wrapValue(hour, delta, 0, HOURS_PER_DAY - 1);
+        }
+        else
+        {
+            minute = wrapValue(minute, delta, 0, MINUTES_PER_HOUR - 1);
+        }
+    }
+}
+
 Carousel getActiveCarousel(const SystemState &systemState)
 {
     if (systemState.settings.modeAuto)
@@ -193,66 +250,29 @@ bool handleLightsEdit(
 {
     if (input == InputEvent::ROTATE_CW)
     {
-        if (uiState.selectedOption == 2)
-        {
-            uiState.editSchedule.frequencyDays =
-                uiState.editSchedule.frequencyDays % 9 + 1;
-        }
-        else if (uiState.selectedOption == 0)
-        {
-            if (uiState.editField == 0)
-                uiState.editSchedule.startHour =
-                    (uiState.editSchedule.startHour + 1) % 24;
-            else
-                uiState.editSchedule.startMinute =
-                    (uiState.editSchedule.startMinute + 1) % 60;
-        }
-        else
-        {
-            if (uiState.editField == 0)
-                uiState.editSchedule.endHour =
-                    (uiState.editSchedule.endHour + 1) % 24;
-            else
-                uiState.editSchedule.endMinute =
-                    (uiState.editSchedule.endMinute + 1) % 60;
-        }
-
+        adjustLightSchedule(
+            uiState.editSchedule,
+            uiState.selectedOption,
+            uiState.editField,
+            1);
         return true;
     }
 
     if (input == InputEvent::ROTATE_CCW)
     {
-        if (uiState.selectedOption == 2)
-        {
-            uiState.editSchedule.frequencyDays =
-                (uiState.editSchedule.frequencyDays + 7) % 9 + 1;
-        }
-        else if (uiState.selectedOption == 0)
-        {
-            if (uiState.editField == 0)
-                uiState.editSchedule.startHour =
-                    (uiState.editSchedule.startHour + 23) % 24;
-            else
-                uiState.editSchedule.startMinute =
-                    (uiState.editSchedule.startMinute + 59) % 60;
-        }
-        else
-        {
-            if (uiState.editField == 0)
-                uiState.editSchedule.endHour =
-                    (uiState.editSchedule.endHour + 23) % 24;
-            else
-                uiState.editSchedule.endMinute =
-                    (uiState.editSchedule.endMinute + 59) % 60;
-        }
-
+        adjustLightSchedule(
+            uiState.editSchedule,
+            uiState.selectedOption,
+            uiState.editField,
+            -1);
         return true;
     }
 
     if (input == InputEvent::ROTARY_PUSH ||
         input == InputEvent::CONFIRM)
     {
-        if (uiState.selectedOption < 2 && uiState.editField == 0)
+        if (uiState.selectedOption < TIME_OPTION_COUNT &&
+            uiState.editField == HOUR_FIELD)
         {
             uiState.editField = 1;
             return true;
