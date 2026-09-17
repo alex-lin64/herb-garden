@@ -8,7 +8,6 @@ enum class Screen
     FANS,
     WATER,
     MODE,
-    TEMP,
 
     // manual mode versions of the screens
     LIGHTS_MANUAL,
@@ -22,7 +21,6 @@ constexpr Screen CAROUSEL_SCREENS_AUTO[] = {
     Screen::FANS,
     Screen::WATER,
     Screen::MODE,
-    Screen::TEMP,
 };
 
 constexpr int CAROUSEL_SCREEN_COUNT_AUTO = sizeof(CAROUSEL_SCREENS_AUTO) / sizeof(CAROUSEL_SCREENS_AUTO[0]);
@@ -33,7 +31,6 @@ constexpr Screen CAROUSEL_SCREENS_MANUAL[] = {
     Screen::FANS_MANUAL,
     Screen::WATER_MANUAL,
     Screen::MODE,
-    Screen::TEMP,
 };
 
 constexpr int CAROUSEL_SCREEN_COUNT_MANUAL = sizeof(CAROUSEL_SCREENS_MANUAL) / sizeof(CAROUSEL_SCREENS_MANUAL[0]);

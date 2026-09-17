@@ -1,6 +1,20 @@
 #include "Navigation.h"
 #include "../../src/State/State.h"
 
+Carousel getActiveCarousel(const SystemState &systemState)
+{
+    if (systemState.settings.modeAuto)
+    {
+        return {
+            CAROUSEL_SCREENS_AUTO,
+            CAROUSEL_SCREEN_COUNT_AUTO};
+    }
+
+    return {
+        CAROUSEL_SCREENS_MANUAL,
+        CAROUSEL_SCREEN_COUNT_MANUAL};
+}
+
 bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
 {
     switch (uiState.screen)
@@ -11,7 +25,6 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
     case Screen::FANS:
     case Screen::WATER:
     case Screen::MODE:
-    case Screen::TEMP:
     case Screen::LIGHTS_MANUAL:
     case Screen::FANS_MANUAL:
     case Screen::WATER_MANUAL:
@@ -23,31 +36,18 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
 
 bool handleHome(UIState &uiState, SystemState &systemState, InputEvent input)
 {
-    const Screen *carouselScreens;
-    int carouselScreenCount;
-
-    // Determine which carousel to use based on the system mode
-    if (systemState.settings.modeAuto)
-    {
-        carouselScreens = CAROUSEL_SCREENS_AUTO;
-        carouselScreenCount = CAROUSEL_SCREEN_COUNT_AUTO;
-    }
-    else
-    {
-        carouselScreens = CAROUSEL_SCREENS_MANUAL;
-        carouselScreenCount = CAROUSEL_SCREEN_COUNT_MANUAL;
-    }
+    Carousel activeCarousel = getActiveCarousel(systemState);
 
     if (input == InputEvent::ROTATE_CW)
     {
-        uiState.carouselIndex = (uiState.carouselIndex + 1) % carouselScreenCount;
-        uiState.screen = carouselScreens[uiState.carouselIndex];
+        uiState.carouselIndex = (uiState.carouselIndex + 1) % activeCarousel.count;
+        uiState.screen = activeCarousel.screens[uiState.carouselIndex];
         return true; // Indicate that the screen has changed
     }
     if (input == InputEvent::ROTATE_CCW)
     {
-        uiState.carouselIndex = (uiState.carouselIndex - 1 + carouselScreenCount) % carouselScreenCount;
-        uiState.screen = carouselScreens[uiState.carouselIndex];
+        uiState.carouselIndex = (uiState.carouselIndex - 1 + activeCarousel.count) % activeCarousel.count;
+        uiState.screen = activeCarousel.screens[uiState.carouselIndex];
         return true; // Indicate that the screen has changed
     }
     if (input == InputEvent::BACK || input == InputEvent::ROTARY_PUSH || input == InputEvent::CONFIRM)
