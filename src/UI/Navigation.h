@@ -4,13 +4,10 @@
 #include "../Hardware/Input.h"
 #include "../State/State.h"
 
-void processInput(UIState &uiState, SystemState &systemState, InputEvent input);
+bool processInput(UIState &uiState, SystemState &systemState, InputEvent input);
 
-void handleCarouselNavigation(
-    UIState &uiState,
-    InputEvent input);
-
-void handleEditPageNavigation(
+bool handleHome(
     UIState &uiState,
     SystemState &systemState,
     InputEvent input);
+

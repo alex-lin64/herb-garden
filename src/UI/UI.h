@@ -20,6 +20,6 @@ private:
 
     bool screenDirty = true; // Flag to indicate if the screen needs to be redrawn
 
-    void handleInput();
+    void handleInput(SystemState &state);
     void updateDisplay(SystemState &state);
 };

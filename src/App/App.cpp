@@ -7,7 +7,6 @@ void App::begin()
 
     hardware.begin();
     ui.begin(hardware);
-    ui.markScreenDirty(); // force home screen redraw on startup after the screen saver
 }
 
 void App::update()

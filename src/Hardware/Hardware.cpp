@@ -123,9 +123,12 @@ bool Hardware::updateSensors(
         digitalRead(FLOAT_SWITCH_PIN) == LOW;
 
     // Check whether anything changed
-    return sensorReadings.temperatureC != oldTemperatureC ||
-           sensorReadings.temperatureF != oldTemperatureF ||
-           sensorReadings.humidity != oldHumidity ||
+    return round(sensorReadings.temperatureC * 10) !=
+               round(oldTemperatureC * 10) ||
+
+           round(sensorReadings.humidity * 10) !=
+               round(oldHumidity * 10) ||
+
            sensorReadings.floatClosed != oldFloatClosed;
 }
 

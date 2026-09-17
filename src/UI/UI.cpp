@@ -1,5 +1,6 @@
 #include "UI.h"
 #include "Screens.h"
+#include "Navigation.h"
 
 void UI::begin(Hardware &hardware)
 {
@@ -8,7 +9,7 @@ void UI::begin(Hardware &hardware)
 
 void UI::update(SystemState &state)
 {
-    handleInput();
+    handleInput(state);
 
     if (screenDirty)
     {
@@ -17,9 +18,18 @@ void UI::update(SystemState &state)
     }
 }
 
-void UI::handleInput()
+// Handle user input and update the UI state accordingly
+void UI::handleInput(SystemState &state)
 {
-    // Encoder/button logic will go here
+    InputEvent input = hardware->getInput();
+
+    if (input == InputEvent::NONE)
+        return;
+
+    if (processInput(uiState, state, input))
+    {
+        markScreenDirty();
+    }
 }
 
 void UI::updateDisplay(SystemState &state)

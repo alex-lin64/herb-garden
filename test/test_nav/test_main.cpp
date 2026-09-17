@@ -11,13 +11,14 @@ void testCarouselRotateCW()
     SystemState system;
 
     ui.carouselIndex = 0;
-    ui.screen = CAROUSEL_SCREENS[0];
+    ui.screen = CAROUSEL_SCREENS_AUTO[0];
 
-    processInput(ui, system, InputEvent::ROTATE_CW);
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
+    TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_INT(1, ui.carouselIndex);
     TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(CAROUSEL_SCREENS[1]),
+        static_cast<int>(CAROUSEL_SCREENS_AUTO[1]),
         static_cast<int>(ui.screen));
 }
 
@@ -27,13 +28,14 @@ void testCarouselRotateCCW()
     SystemState system;
 
     ui.carouselIndex = 1;
-    ui.screen = CAROUSEL_SCREENS[1];
+    ui.screen = CAROUSEL_SCREENS_AUTO[1];
 
-    processInput(ui, system, InputEvent::ROTATE_CCW);
+    bool result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
+    TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
     TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(CAROUSEL_SCREENS[0]),
+        static_cast<int>(CAROUSEL_SCREENS_AUTO[0]),
         static_cast<int>(ui.screen));
 }
 
@@ -42,14 +44,15 @@ void testCarouselRotateCWWraps()
     UIState ui;
     SystemState system;
 
-    ui.carouselIndex = CAROUSEL_SCREEN_COUNT - 1;
-    ui.screen = CAROUSEL_SCREENS[ui.carouselIndex];
+    ui.carouselIndex = CAROUSEL_SCREEN_COUNT_AUTO - 1;
+    ui.screen = CAROUSEL_SCREENS_AUTO[ui.carouselIndex];
 
-    processInput(ui, system, InputEvent::ROTATE_CW);
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
+    TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
     TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(CAROUSEL_SCREENS[0]),
+        static_cast<int>(CAROUSEL_SCREENS_AUTO[0]),
         static_cast<int>(ui.screen));
 }
 
@@ -59,17 +62,18 @@ void testCarouselRotateCCWWraps()
     SystemState system;
 
     ui.carouselIndex = 0;
-    ui.screen = CAROUSEL_SCREENS[0];
+    ui.screen = CAROUSEL_SCREENS_AUTO[0];
 
-    processInput(ui, system, InputEvent::ROTATE_CCW);
+    bool result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
+    TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_INT(
-        CAROUSEL_SCREEN_COUNT - 1,
+        CAROUSEL_SCREEN_COUNT_AUTO - 1,
         ui.carouselIndex);
 
     TEST_ASSERT_EQUAL_INT(
         static_cast<int>(
-            CAROUSEL_SCREENS[CAROUSEL_SCREEN_COUNT - 1]),
+            CAROUSEL_SCREENS_AUTO[CAROUSEL_SCREEN_COUNT_AUTO - 1]),
         static_cast<int>(ui.screen));
 }
 
@@ -79,13 +83,14 @@ void testCarouselBackReturnsToFirstPage()
     SystemState system;
 
     ui.carouselIndex = 3;
-    ui.screen = CAROUSEL_SCREENS[3];
+    ui.screen = CAROUSEL_SCREENS_AUTO[3];
 
-    processInput(ui, system, InputEvent::BACK);
+    bool result = processInput(ui, system, InputEvent::BACK);
 
+    TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
     TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(CAROUSEL_SCREENS[0]),
+        static_cast<int>(CAROUSEL_SCREENS_AUTO[0]),
         static_cast<int>(ui.screen));
 }
 
