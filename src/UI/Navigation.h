@@ -66,6 +66,26 @@ bool handleWaterSelect(
     SystemState &systemState,
     InputEvent input);
 
+bool handleModePage(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleLightsManual(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleFansManual(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleWaterManual(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
 bool handleDurationEdit(
     UIState &uiState,
     DurationSchedule &schedule,

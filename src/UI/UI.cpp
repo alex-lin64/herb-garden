@@ -56,6 +56,18 @@ void UI::updateDisplay(SystemState &state)
     case Screen::ERROR:
         drawErrorScreen(display);
         break;
+    case Screen::MODE:
+        drawModeScreen(display, state, uiState);
+        break;
+    case Screen::LIGHTS_MANUAL:
+        drawLightsManualScreen(display, state);
+        break;
+    case Screen::FANS_MANUAL:
+        drawFansManualScreen(display, state);
+        break;
+    case Screen::WATER_MANUAL:
+        drawWaterManualScreen(display, state);
+        break;
     default:
         drawHomeScreen(display, state);
         break;

@@ -772,3 +772,106 @@ void drawWaterScreen(
     display.setDrawColor(1);
     display.sendBuffer();
 }
+
+void drawModeScreen(
+    Display &display,
+    const SystemState &state,
+    const UIState &uiState)
+{
+    constexpr int COLUMN_STEP = 64;
+    constexpr int COLUMN_WIDTH = 63;
+    constexpr int OPTION_COUNT = 2;
+    constexpr int SELECTION_TOP = 30;
+    constexpr int SELECTION_HEIGHT = 18;
+    constexpr int VALUE_BASELINE = 45;
+    constexpr int SELECTION_PADDING = 3;
+    constexpr int SELECTION_RADIUS = 3;
+    constexpr int AUTO_RIGHT_EXTENSION = 3;
+
+    display.clearBuffer();
+    drawHeader(display, state, "MODE");
+
+    const char *optionLabels[] = {
+        "AUTO",
+        "MANUAL"};
+
+    int selectedOption = state.settings.modeAuto ? 0 : 1;
+
+    for (int option = 0; option < OPTION_COUNT; option++)
+    {
+        int optionLeft = option * COLUMN_STEP;
+        int valueWidth = display.getStrWidth(optionLabels[option]);
+        int valueX = optionLeft + (COLUMN_WIDTH - valueWidth) / 2;
+        bool selected =
+            (uiState.mode == UIMode::SELECT
+                 ? uiState.selectedOption
+                 : selectedOption) == option;
+
+        display.setFont(u8g2_font_7x13B_tr);
+
+        if (selected)
+        {
+            display.setDrawColor(1);
+            int selectionWidth =
+                valueWidth +
+                SELECTION_PADDING * 2 +
+                (option == 0 ? AUTO_RIGHT_EXTENSION : 0);
+
+            if (uiState.mode == UIMode::SELECT)
+            {
+                display.drawRBox(
+                    valueX - SELECTION_PADDING,
+                    SELECTION_TOP,
+                    selectionWidth,
+                    SELECTION_HEIGHT,
+                    SELECTION_RADIUS);
+            }
+            else
+            {
+                display.drawBox(
+                    valueX - SELECTION_PADDING,
+                    SELECTION_TOP,
+                    selectionWidth,
+                    SELECTION_HEIGHT);
+            }
+
+            display.setDrawColor(0);
+            display.drawStr(valueX, VALUE_BASELINE, optionLabels[option]);
+        }
+        else
+        {
+            display.setDrawColor(1);
+            display.drawStr(valueX, VALUE_BASELINE, optionLabels[option]);
+        }
+    }
+
+    display.setDrawColor(1);
+    display.sendBuffer();
+}
+
+void drawLightsManualScreen(
+    Display &display,
+    const SystemState &state)
+{
+    display.clearBuffer();
+    drawHeader(display, state, "LIGHTS");
+    display.sendBuffer();
+}
+
+void drawFansManualScreen(
+    Display &display,
+    const SystemState &state)
+{
+    display.clearBuffer();
+    drawHeader(display, state, "FANS");
+    display.sendBuffer();
+}
+
+void drawWaterManualScreen(
+    Display &display,
+    const SystemState &state)
+{
+    display.clearBuffer();
+    drawHeader(display, state, "WATER");
+    display.sendBuffer();
+}

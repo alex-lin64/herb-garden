@@ -27,3 +27,16 @@ void drawFansScreen(
 void drawWaterScreen(
     Display &display,
     const SystemState &state, const UIState &uiState);
+void drawModeScreen(
+    Display &display,
+    const SystemState &state,
+    const UIState &uiState);
+void drawLightsManualScreen(
+    Display &display,
+    const SystemState &state);
+void drawFansManualScreen(
+    Display &display,
+    const SystemState &state);
+void drawWaterManualScreen(
+    Display &display,
+    const SystemState &state);

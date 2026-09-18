@@ -25,7 +25,7 @@ constexpr Screen CAROUSEL_SCREENS_AUTO[] = {
     Screen::LIGHTS,
     Screen::FANS,
     Screen::WATER,
-    // Screen::MODE,
+    Screen::MODE,
 };
 
 constexpr int CAROUSEL_SCREEN_COUNT_AUTO = sizeof(CAROUSEL_SCREENS_AUTO) / sizeof(CAROUSEL_SCREENS_AUTO[0]);

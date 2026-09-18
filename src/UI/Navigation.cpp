@@ -19,6 +19,9 @@ namespace
     constexpr int MINUTE_FIELD = 1;
 
     constexpr int DURATION_OPTION = 0;
+    constexpr int AUTO_MODE_OPTION = 0;
+    constexpr int MANUAL_MODE_OPTION = 1;
+    constexpr int MODE_OPTION_COUNT = 2;
 
     int wrapValue(int value, int delta, int minimum, int maximum)
     {
@@ -156,10 +159,13 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
     case Screen::WATER:
         return handleWater(uiState, systemState, input);
     case Screen::MODE:
+        return handleModePage(uiState, systemState, input);
     case Screen::LIGHTS_MANUAL:
+        return handleLightsManual(uiState, systemState, input);
     case Screen::FANS_MANUAL:
+        return handleFansManual(uiState, systemState, input);
     case Screen::WATER_MANUAL:
-        return false;
+        return handleWaterManual(uiState, systemState, input);
     }
 
     return false; // No change in screen
@@ -454,6 +460,111 @@ bool handleWaterSelect(
         uiState.editDurationSchedule = systemState.settings.waterSchedule;
 
         return true;
+    }
+
+    return false;
+}
+
+bool handleModePage(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    switch (uiState.mode)
+    {
+    case UIMode::VIEW:
+    {
+        bool changed = handleView(uiState, systemState, input);
+
+        if (input == InputEvent::ROTARY_PUSH ||
+            input == InputEvent::CONFIRM)
+        {
+            uiState.selectedOption =
+                systemState.settings.modeAuto
+                    ? AUTO_MODE_OPTION
+                    : MANUAL_MODE_OPTION;
+        }
+
+        return changed;
+    }
+
+    case UIMode::SELECT:
+        if (handleOptionNavigation(uiState, MODE_OPTION_COUNT, input))
+            return true;
+
+        if (input == InputEvent::ROTARY_PUSH ||
+            input == InputEvent::CONFIRM)
+        {
+            systemState.settings.modeAuto =
+                uiState.selectedOption == AUTO_MODE_OPTION;
+            uiState.mode = UIMode::VIEW;
+            return true;
+        }
+
+        return false;
+
+    case UIMode::EDIT:
+        return false;
+    }
+
+    return false;
+}
+
+bool handleLightsManual(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    switch (uiState.mode)
+    {
+    case UIMode::VIEW:
+        return handleView(uiState, systemState, input);
+
+    case UIMode::SELECT:
+        return false;
+
+    case UIMode::EDIT:
+        return false;
+    }
+
+    return false;
+}
+
+bool handleFansManual(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    switch (uiState.mode)
+    {
+    case UIMode::VIEW:
+        return handleView(uiState, systemState, input);
+
+    case UIMode::SELECT:
+        return false;
+
+    case UIMode::EDIT:
+        return false;
+    }
+
+    return false;
+}
+
+bool handleWaterManual(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    switch (uiState.mode)
+    {
+    case UIMode::VIEW:
+        return handleView(uiState, systemState, input);
+
+    case UIMode::SELECT:
+        return false;
+
+    case UIMode::EDIT:
+        return false;
     }
 
     return false;

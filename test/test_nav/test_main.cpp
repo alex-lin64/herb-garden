@@ -738,6 +738,44 @@ void testWaterEditCommitsOnlyWaterSchedule()
     TEST_ASSERT_EQUAL_INT(10, system.settings.fansSchedule.durationMinutes);
 }
 
+void testModeViewEntersSelectAtCurrentSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::SELECT), static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+}
+
+void testModeSelectMovesAndCommitsManual()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 0;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+
+    result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_FALSE(system.settings.modeAuto);
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::VIEW), static_cast<int>(ui.mode));
+}
+
 void setup()
 {
     delay(2000);
@@ -784,6 +822,8 @@ void setup()
 
     RUN_TEST(testWaterSelectCopiesScheduleForEditing);
     RUN_TEST(testWaterEditCommitsOnlyWaterSchedule);
+    RUN_TEST(testModeViewEntersSelectAtCurrentSetting);
+    RUN_TEST(testModeSelectMovesAndCommitsManual);
 
     UNITY_END();
 }
