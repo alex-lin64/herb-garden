@@ -14,13 +14,9 @@ constexpr int DEFAULT_LIGHT_END_MINUTE = 0;
 constexpr int DEFAULT_LIGHT_FREQUENCY_DAYS = 1;
 
 // Default fan schedule
-constexpr int DEFAULT_FANS_DURATION_HOURS = 0;
 constexpr int DEFAULT_FANS_DURATION_MINUTES = 10;
-constexpr int DEFAULT_FANS_FREQUENCY_HOURS = 0;
-constexpr int DEFAULT_FANS_FREQUENCY_MINUTES = 45;
+constexpr int DEFAULT_FANS_FREQUENCY_HOURS = 1;
 
 // Default water schedule
-constexpr int DEFAULT_WATER_DURATION_HOURS = 0;
 constexpr int DEFAULT_WATER_DURATION_MINUTES = 5;
 constexpr int DEFAULT_WATER_FREQUENCY_HOURS = 12;
-constexpr int DEFAULT_WATER_FREQUENCY_MINUTES = 0;

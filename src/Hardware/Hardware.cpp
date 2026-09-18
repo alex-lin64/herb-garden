@@ -131,17 +131,21 @@ InputEvent Hardware::getInput()
     // Check rotary encoder
     int64_t currentCount = encoder.getCount();
     int64_t countDifference = currentCount - lastEncoderCount;
+    lastEncoderCount = currentCount;
 
-    // Each rotary encoder step generates 2 counts, so we check for a difference of 2
-    if (countDifference >= 2)
+    // Half-quad produces two raw counts per detent. Keep partial movement so
+    // direction changes cannot lose a count between input polls.
+    pendingEncoderCounts += countDifference;
+
+    if (pendingEncoderCounts >= 2)
     {
-        lastEncoderCount += 2;
+        pendingEncoderCounts -= 2;
         return InputEvent::ROTATE_CW;
     }
 
-    if (countDifference <= -2)
+    if (pendingEncoderCounts <= -2)
     {
-        lastEncoderCount -= 2;
+        pendingEncoderCounts += 2;
         return InputEvent::ROTATE_CCW;
     }
 

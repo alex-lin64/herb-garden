@@ -45,4 +45,5 @@ private:
     Bounce2::Button rotaryPushButton;
 
     int64_t lastEncoderCount = 0;
+    int64_t pendingEncoderCounts = 0;
 };

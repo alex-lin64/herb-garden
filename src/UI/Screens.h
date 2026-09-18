@@ -14,6 +14,7 @@ void drawHeader(
     const SystemState &state,
     const char *title);
 void drawScreenSaver(Display &display);
+void drawErrorScreen(Display &display);
 void drawHomeScreen(Display &display, const SystemState &state);
 void drawLightsScreen(
     Display &display,
@@ -23,3 +24,6 @@ void drawFansScreen(
     Display &display,
     const SystemState &state,
     const UIState &uiState);
+void drawWaterScreen(
+    Display &display,
+    const SystemState &state, const UIState &uiState);

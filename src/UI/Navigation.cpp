@@ -7,7 +7,8 @@ namespace
 {
     constexpr int HOURS_PER_DAY = 24;
     constexpr int MINUTES_PER_HOUR = 60;
-    constexpr int MAX_DURATION_HOURS = 99;
+    constexpr int MAX_DURATION_MINUTES = 99;
+    constexpr int MAX_FREQUENCY_HOURS = 99;
     constexpr int LIGHT_FREQUENCY_MIN = 1;
     constexpr int LIGHT_FREQUENCY_MAX = 9;
 
@@ -63,32 +64,36 @@ namespace
         }
     }
 
+    bool isValidLightSchedule(const LightSchedule &schedule)
+    {
+        int startMinutes =
+            schedule.startHour * MINUTES_PER_HOUR + schedule.startMinute;
+        int endMinutes =
+            schedule.endHour * MINUTES_PER_HOUR + schedule.endMinute;
+
+        return endMinutes > startMinutes;
+    }
+
     void adjustDurationSchedule(
         DurationSchedule &schedule,
         int selectedOption,
-        int editField,
         int delta)
     {
-        int &hours = selectedOption == DURATION_OPTION
-                         ? schedule.durationHours
-                         : schedule.frequencyHours;
-
-        int &minutes = selectedOption == DURATION_OPTION
-                           ? schedule.durationMinutes
-                           : schedule.frequencyMinutes;
-
-        if (editField == HOUR_FIELD)
+        if (selectedOption == DURATION_OPTION)
         {
-            hours = wrapValue(hours, delta, 0, MAX_DURATION_HOURS);
-        }
-        else
-        {
-            minutes = wrapValue(
-                minutes,
+            schedule.durationMinutes = wrapValue(
+                schedule.durationMinutes,
                 delta,
-                0,
-                MINUTES_PER_HOUR - 1);
+                1,
+                MAX_DURATION_MINUTES);
+            return;
         }
+
+        schedule.frequencyHours = wrapValue(
+            schedule.frequencyHours,
+            delta,
+            1,
+            MAX_FREQUENCY_HOURS);
     }
 
     bool handleOptionNavigation(
@@ -140,6 +145,8 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
     {
     case Screen::SCREEN_SAVER:
         return handleScreenSaver(uiState);
+    case Screen::ERROR:
+        return handleError(uiState, input);
     case Screen::HOME:
         return handleHome(uiState, systemState, input);
     case Screen::LIGHTS:
@@ -147,6 +154,7 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input)
     case Screen::FANS:
         return handleFans(uiState, systemState, input);
     case Screen::WATER:
+        return handleWater(uiState, systemState, input);
     case Screen::MODE:
     case Screen::LIGHTS_MANUAL:
     case Screen::FANS_MANUAL:
@@ -164,6 +172,19 @@ bool handleScreenSaver(UIState &uiState)
     uiState.carouselIndex = 0;
 
     return true; // Indicate that the screen has changed
+}
+
+bool handleError(UIState &uiState, InputEvent input)
+{
+    if (input == InputEvent::NONE)
+        return false;
+
+    uiState.screen = uiState.errorReturnScreen;
+    uiState.mode = uiState.errorReturnMode;
+    uiState.selectedOption = uiState.errorReturnSelectedOption;
+    uiState.editField = uiState.errorReturnEditField;
+
+    return true;
 }
 
 bool handleHome(UIState &uiState, SystemState &systemState, InputEvent input)
@@ -321,6 +342,18 @@ bool handleLightsEdit(
             return true;
         }
 
+        if (!isValidLightSchedule(uiState.editLightSchedule))
+        {
+            // return to normal selection mode, reverting the faulty input after
+            // showing error screen
+            uiState.errorReturnScreen = uiState.screen;
+            uiState.errorReturnMode = UIMode::SELECT;
+            uiState.errorReturnSelectedOption = uiState.selectedOption;
+            uiState.errorReturnEditField = HOUR_FIELD;
+            uiState.screen = Screen::ERROR;
+            return true;
+        }
+
         systemState.settings.lightSchedule = uiState.editLightSchedule;
         uiState.mode = UIMode::SELECT;
         uiState.editField = HOUR_FIELD;
@@ -382,6 +415,50 @@ bool handleFansSelect(
     return false;
 }
 
+bool handleWater(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    switch (uiState.mode)
+    {
+    case UIMode::VIEW:
+        return handleView(uiState, systemState, input);
+
+    case UIMode::SELECT:
+        return handleWaterSelect(uiState, systemState, input);
+
+    case UIMode::EDIT:
+        return handleDurationEdit(
+            uiState,
+            systemState.settings.waterSchedule,
+            input);
+    }
+
+    return false;
+}
+
+bool handleWaterSelect(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input)
+{
+    if (handleOptionNavigation(uiState, DURATION_OPTION_COUNT, input))
+        return true;
+
+    if (input == InputEvent::ROTARY_PUSH ||
+        input == InputEvent::CONFIRM)
+    {
+        uiState.mode = UIMode::EDIT;
+        uiState.editField = 0;
+        uiState.editDurationSchedule = systemState.settings.waterSchedule;
+
+        return true;
+    }
+
+    return false;
+}
+
 bool handleDurationEdit(
     UIState &uiState,
     DurationSchedule &schedule,
@@ -392,7 +469,6 @@ bool handleDurationEdit(
         adjustDurationSchedule(
             uiState.editDurationSchedule,
             uiState.selectedOption,
-            uiState.editField,
             1);
         return true;
     }
@@ -402,7 +478,6 @@ bool handleDurationEdit(
         adjustDurationSchedule(
             uiState.editDurationSchedule,
             uiState.selectedOption,
-            uiState.editField,
             -1);
         return true;
     }
@@ -410,13 +485,6 @@ bool handleDurationEdit(
     if (input == InputEvent::ROTARY_PUSH ||
         input == InputEvent::CONFIRM)
     {
-        if (uiState.selectedOption < DURATION_OPTION_COUNT &&
-            uiState.editField == HOUR_FIELD)
-        {
-            uiState.editField = MINUTE_FIELD;
-            return true;
-        }
-
         schedule = uiState.editDurationSchedule;
         uiState.mode = UIMode::SELECT;
         uiState.editField = HOUR_FIELD;

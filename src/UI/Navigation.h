@@ -17,6 +17,10 @@ bool processInput(UIState &uiState, SystemState &systemState, InputEvent input);
 bool handleScreenSaver(
     UIState &uiState);
 
+bool handleError(
+    UIState &uiState,
+    InputEvent input);
+
 bool handleHome(
     UIState &uiState,
     SystemState &systemState,
@@ -48,6 +52,16 @@ bool handleFans(
     InputEvent input);
 
 bool handleFansSelect(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleWater(
+    UIState &uiState,
+    SystemState &systemState,
+    InputEvent input);
+
+bool handleWaterSelect(
     UIState &uiState,
     SystemState &systemState,
     InputEvent input);

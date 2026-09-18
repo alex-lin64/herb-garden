@@ -17,13 +17,14 @@ enum class Screen
     WATER_MANUAL,
 
     SCREEN_SAVER,
+    ERROR,
 };
 
 constexpr Screen CAROUSEL_SCREENS_AUTO[] = {
     Screen::HOME,
     Screen::LIGHTS,
     Screen::FANS,
-    // Screen::WATER,
+    Screen::WATER,
     // Screen::MODE,
 };
 
@@ -64,4 +65,9 @@ struct UIState
 
     LightSchedule editLightSchedule;
     DurationSchedule editDurationSchedule;
+
+    Screen errorReturnScreen = Screen::HOME;
+    UIMode errorReturnMode = UIMode::VIEW;
+    int errorReturnSelectedOption = 0;
+    int errorReturnEditField = 0;
 };

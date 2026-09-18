@@ -447,6 +447,91 @@ void testLightsEditBackCancelsEditing()
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
 }
 
+void testLightsEditRejectsEqualStartAndEndTimes()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.lightSchedule.startHour = 8;
+    system.settings.lightSchedule.startMinute = 0;
+    system.settings.lightSchedule.endHour = 22;
+    system.settings.lightSchedule.endMinute = 0;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+    ui.editField = 1;
+    ui.editLightSchedule = system.settings.lightSchedule;
+    ui.editLightSchedule.endHour = 8;
+    ui.editLightSchedule.endMinute = 0;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::ERROR),
+        static_cast<int>(ui.screen));
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::LIGHTS),
+        static_cast<int>(ui.errorReturnScreen));
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::EDIT),
+        static_cast<int>(ui.errorReturnMode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+    TEST_ASSERT_EQUAL_INT(22, system.settings.lightSchedule.endHour);
+    TEST_ASSERT_EQUAL_INT(0, system.settings.lightSchedule.endMinute);
+}
+
+void testLightsEditRejectsEndBeforeStart()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+    ui.editField = 1;
+    ui.editLightSchedule.startHour = 18;
+    ui.editLightSchedule.startMinute = 30;
+    ui.editLightSchedule.endHour = 7;
+    ui.editLightSchedule.endMinute = 0;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::ERROR),
+        static_cast<int>(ui.screen));
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::LIGHTS),
+        static_cast<int>(ui.errorReturnScreen));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+}
+
+void testErrorInputRestoresPreviousContext()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::ERROR;
+    ui.errorReturnScreen = Screen::LIGHTS;
+    ui.errorReturnMode = UIMode::EDIT;
+    ui.errorReturnSelectedOption = 1;
+    ui.errorReturnEditField = 1;
+
+    bool result = processInput(ui, system, InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::LIGHTS),
+        static_cast<int>(ui.screen));
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::EDIT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+    TEST_ASSERT_EQUAL_INT(1, ui.editField);
+}
+
 void testFansViewEntersSelectModeAndResetsOption()
 {
     UIState ui;
@@ -490,10 +575,8 @@ void testFansSelectCopiesScheduleForEditing()
     UIState ui;
     SystemState system;
 
-    system.settings.fansSchedule.durationHours = 0;
     system.settings.fansSchedule.durationMinutes = 10;
-    system.settings.fansSchedule.frequencyHours = 0;
-    system.settings.fansSchedule.frequencyMinutes = 45;
+    system.settings.fansSchedule.frequencyHours = 1;
 
     ui.screen = Screen::FANS;
     ui.mode = UIMode::SELECT;
@@ -505,13 +588,11 @@ void testFansSelectCopiesScheduleForEditing()
         static_cast<int>(UIMode::EDIT),
         static_cast<int>(ui.mode));
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
-    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.durationHours);
     TEST_ASSERT_EQUAL_INT(10, ui.editDurationSchedule.durationMinutes);
-    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.frequencyHours);
-    TEST_ASSERT_EQUAL_INT(45, ui.editDurationSchedule.frequencyMinutes);
+    TEST_ASSERT_EQUAL_INT(1, ui.editDurationSchedule.frequencyHours);
 }
 
-void testFansEditWrapsDurationHoursThrough99()
+void testFansEditWrapsDurationMinutesThrough99()
 {
     UIState ui;
     SystemState system;
@@ -520,20 +601,20 @@ void testFansEditWrapsDurationHoursThrough99()
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 0;
     ui.editField = 0;
-    ui.editDurationSchedule.durationHours = 99;
+    ui.editDurationSchedule.durationMinutes = 99;
 
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.durationHours);
+    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.durationMinutes);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(99, ui.editDurationSchedule.durationHours);
+    TEST_ASSERT_EQUAL_INT(99, ui.editDurationSchedule.durationMinutes);
 }
 
-void testFansEditWrapsFrequencyMinutes()
+void testFansEditWrapsFrequencyHoursThrough99()
 {
     UIState ui;
     SystemState system;
@@ -541,21 +622,20 @@ void testFansEditWrapsFrequencyMinutes()
     ui.screen = Screen::FANS;
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 1;
-    ui.editField = 1;
-    ui.editDurationSchedule.frequencyMinutes = 59;
+    ui.editDurationSchedule.frequencyHours = 99;
 
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.frequencyMinutes);
+    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.frequencyHours);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(59, ui.editDurationSchedule.frequencyMinutes);
+    TEST_ASSERT_EQUAL_INT(99, ui.editDurationSchedule.frequencyHours);
 }
 
-void testFansEditConfirmMovesFromHourToMinute()
+void testFansEditConfirmCommitsImmediately()
 {
     UIState ui;
     SystemState system;
@@ -563,15 +643,13 @@ void testFansEditConfirmMovesFromHourToMinute()
     ui.screen = Screen::FANS;
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 0;
-    ui.editField = 0;
+    ui.editDurationSchedule.durationMinutes = 25;
 
     bool result = processInput(ui, system, InputEvent::CONFIRM);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(1, ui.editField);
-    TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(UIMode::EDIT),
-        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(25, system.settings.fansSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::SELECT), static_cast<int>(ui.mode));
 }
 
 void testFansEditConfirmCommitsSchedule()
@@ -582,19 +660,15 @@ void testFansEditConfirmCommitsSchedule()
     ui.screen = Screen::FANS;
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 1;
-    ui.editField = 1;
-    ui.editDurationSchedule.durationHours = 0;
+    ui.editField = 0;
     ui.editDurationSchedule.durationMinutes = 10;
     ui.editDurationSchedule.frequencyHours = 2;
-    ui.editDurationSchedule.frequencyMinutes = 30;
 
     bool result = processInput(ui, system, InputEvent::CONFIRM);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, system.settings.fansSchedule.durationHours);
     TEST_ASSERT_EQUAL_INT(10, system.settings.fansSchedule.durationMinutes);
     TEST_ASSERT_EQUAL_INT(2, system.settings.fansSchedule.frequencyHours);
-    TEST_ASSERT_EQUAL_INT(30, system.settings.fansSchedule.frequencyMinutes);
     TEST_ASSERT_EQUAL_INT(
         static_cast<int>(UIMode::SELECT),
         static_cast<int>(ui.mode));
@@ -610,7 +684,7 @@ void testFansEditBackCancelsEditing()
 
     ui.screen = Screen::FANS;
     ui.mode = UIMode::EDIT;
-    ui.editField = 1;
+    ui.editField = 0;
     ui.editDurationSchedule.durationMinutes = 25;
 
     bool result = processInput(ui, system, InputEvent::BACK);
@@ -621,6 +695,47 @@ void testFansEditBackCancelsEditing()
         static_cast<int>(UIMode::SELECT),
         static_cast<int>(ui.mode));
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
+}
+
+void testWaterSelectCopiesScheduleForEditing()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.waterSchedule.durationMinutes = 5;
+    system.settings.waterSchedule.frequencyHours = 12;
+
+    ui.screen = Screen::WATER;
+    ui.mode = UIMode::SELECT;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::EDIT), static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(5, ui.editDurationSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(12, ui.editDurationSchedule.frequencyHours);
+}
+
+void testWaterEditCommitsOnlyWaterSchedule()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.fansSchedule.durationMinutes = 10;
+    system.settings.waterSchedule.durationMinutes = 5;
+
+    ui.screen = Screen::WATER;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editDurationSchedule.durationMinutes = 25;
+    ui.editDurationSchedule.frequencyHours = 18;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(25, system.settings.waterSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(18, system.settings.waterSchedule.frequencyHours);
+    TEST_ASSERT_EQUAL_INT(10, system.settings.fansSchedule.durationMinutes);
 }
 
 void setup()
@@ -654,15 +769,21 @@ void setup()
     RUN_TEST(testLightsEditConfirmMovesFromHourToMinute);
     RUN_TEST(testLightsEditConfirmCommitsSchedule);
     RUN_TEST(testLightsEditBackCancelsEditing);
+    RUN_TEST(testLightsEditRejectsEqualStartAndEndTimes);
+    RUN_TEST(testLightsEditRejectsEndBeforeStart);
+    RUN_TEST(testErrorInputRestoresPreviousContext);
 
     RUN_TEST(testFansViewEntersSelectModeAndResetsOption);
     RUN_TEST(testFansSelectWrapsOptions);
     RUN_TEST(testFansSelectCopiesScheduleForEditing);
-    RUN_TEST(testFansEditWrapsDurationHoursThrough99);
-    RUN_TEST(testFansEditWrapsFrequencyMinutes);
-    RUN_TEST(testFansEditConfirmMovesFromHourToMinute);
+    RUN_TEST(testFansEditWrapsDurationMinutesThrough99);
+    RUN_TEST(testFansEditWrapsFrequencyHoursThrough99);
+    RUN_TEST(testFansEditConfirmCommitsImmediately);
     RUN_TEST(testFansEditConfirmCommitsSchedule);
     RUN_TEST(testFansEditBackCancelsEditing);
+
+    RUN_TEST(testWaterSelectCopiesScheduleForEditing);
+    RUN_TEST(testWaterEditCommitsOnlyWaterSchedule);
 
     UNITY_END();
 }

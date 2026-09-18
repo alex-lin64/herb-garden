@@ -131,6 +131,22 @@ void drawScreenSaver(Display &display)
     display.sendBuffer();
 }
 
+void drawErrorScreen(Display &display)
+{
+    display.clearBuffer();
+    display.setFont(u8g2_font_fub17_tr);
+
+    const char *errorText = "DUMBASS";
+    int errorWidth = display.getStrWidth(errorText);
+
+    display.drawStr(
+        (DISPLAY_WIDTH - errorWidth) / 2,
+        40,
+        errorText);
+
+    display.sendBuffer();
+}
+
 void drawHomeScreen(
     Display &display,
     const SystemState &state)
@@ -534,9 +550,6 @@ void drawFansScreen(
     const SystemState &state,
     const UIState &uiState)
 {
-    constexpr int TIME_COLON_OFFSET = 1;
-    constexpr int TIME_MINUTE_OFFSET = 2;
-    constexpr int MINUTE_TEXT_OFFSET = 3;
     constexpr int COLUMN_STEP = 64;
     constexpr int COLUMN_WIDTH = 63;
     constexpr int COLUMN_COUNT = DURATION_OPTION_COUNT;
@@ -549,8 +562,6 @@ void drawFansScreen(
     constexpr int SELECTION_PADDING = 3;
     constexpr int EDIT_PADDING = 2;
     constexpr int EDIT_CORNER_RADIUS = 2;
-    constexpr int HOUR_FIELD = 0;
-    constexpr int MINUTE_FIELD = 1;
 
     display.clearBuffer();
 
@@ -571,16 +582,14 @@ void drawFansScreen(
     snprintf(
         durationValue,
         sizeof(durationValue),
-        "%02d:%02d",
-        schedule.durationHours,
+        "%02dm",
         schedule.durationMinutes);
 
     snprintf(
         frequencyValue,
         sizeof(frequencyValue),
-        "%02d:%02d",
-        schedule.frequencyHours,
-        schedule.frequencyMinutes);
+        "%02dh",
+        schedule.frequencyHours);
 
     const char *columnValues[] = {
         durationValue,
@@ -619,34 +628,15 @@ void drawFansScreen(
             display.setDrawColor(1);
             display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
 
-            int hourWidth = display.getStrWidth("00");
-            int colonX = valueX + hourWidth + TIME_COLON_OFFSET;
-            int minuteX = valueX + display.getStrWidth("00:") + TIME_MINUTE_OFFSET;
-            int highlightX =
-                uiState.editField == HOUR_FIELD
-                    ? valueX
-                    : minuteX;
-
             display.drawRBox(
-                highlightX - EDIT_PADDING,
+                valueX - EDIT_PADDING,
                 EDIT_TOP,
-                hourWidth + EDIT_PADDING * 2,
+                valueWidth + EDIT_PADDING * 2,
                 EDIT_HEIGHT,
                 EDIT_CORNER_RADIUS);
 
-            display.setDrawColor(
-                uiState.editField == HOUR_FIELD ? 0 : 1);
+            display.setDrawColor(0);
             display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
-
-            display.setDrawColor(
-                uiState.editField == MINUTE_FIELD ? 0 : 1);
-            display.drawStr(
-                minuteX,
-                VALUE_BASELINE,
-                columnValues[column] + MINUTE_TEXT_OFFSET);
-
-            display.setDrawColor(1);
-            display.drawStr(colonX, VALUE_BASELINE, ":");
         }
         else
         {
@@ -666,5 +656,14 @@ void drawFansScreen(
     }
 
     display.setDrawColor(1);
+    display.sendBuffer();
+}
+
+void drawWaterScreen(
+    Display &display,
+    const SystemState &state, const UIState &uiState)
+{
+    display.clearBuffer();
+    drawHeader(display, state, "WATER");
     display.sendBuffer();
 }

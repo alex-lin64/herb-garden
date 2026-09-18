@@ -14,10 +14,8 @@ constexpr int LIGHT_OPTION_COUNT = 3;
 
 struct DurationSchedule
 {
-    int durationHours;
     int durationMinutes;
     int frequencyHours;
-    int frequencyMinutes;
 };
 
 constexpr int DURATION_OPTION_COUNT = 2;
@@ -29,16 +27,12 @@ struct SystemSettings
 
     LightSchedule lightSchedule;
     DurationSchedule waterSchedule = {
-        DEFAULT_WATER_DURATION_HOURS,
         DEFAULT_WATER_DURATION_MINUTES,
-        DEFAULT_WATER_FREQUENCY_HOURS,
-        DEFAULT_WATER_FREQUENCY_MINUTES};
+        DEFAULT_WATER_FREQUENCY_HOURS};
 
     DurationSchedule fansSchedule = {
-        DEFAULT_FANS_DURATION_HOURS,
         DEFAULT_FANS_DURATION_MINUTES,
-        DEFAULT_FANS_FREQUENCY_HOURS,
-        DEFAULT_FANS_FREQUENCY_MINUTES};
+        DEFAULT_FANS_FREQUENCY_HOURS};
 };
 
 struct SensorReadings

@@ -50,6 +50,12 @@ void UI::updateDisplay(SystemState &state)
     case Screen::FANS:
         drawFansScreen(display, state, uiState);
         break;
+    case Screen::WATER:
+        drawWaterScreen(display, state, uiState);
+        break;
+    case Screen::ERROR:
+        drawErrorScreen(display);
+        break;
     default:
         drawHomeScreen(display, state);
         break;
