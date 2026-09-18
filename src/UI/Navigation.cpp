@@ -342,7 +342,10 @@ bool handleFans(
         return handleFansSelect(uiState, systemState, input);
 
     case UIMode::EDIT:
-        return handleFansEdit(uiState, systemState, input);
+        return handleDurationEdit(
+            uiState,
+            systemState.settings.fansSchedule,
+            input);
     }
 
     return false;
@@ -387,9 +390,9 @@ bool handleFansSelect(
     return false;
 }
 
-bool handleFansEdit(
+bool handleDurationEdit(
     UIState &uiState,
-    SystemState &systemState,
+    DurationSchedule &schedule,
     InputEvent input)
 {
     if (input == InputEvent::ROTATE_CW)
@@ -422,8 +425,7 @@ bool handleFansEdit(
             return true;
         }
 
-        systemState.settings.fansSchedule =
-            uiState.editDurationSchedule;
+        schedule = uiState.editDurationSchedule;
         uiState.mode = UIMode::SELECT;
         uiState.editField = HOUR_FIELD;
         return true;

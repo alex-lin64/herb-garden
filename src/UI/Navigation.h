@@ -52,7 +52,7 @@ bool handleFansSelect(
     SystemState &systemState,
     InputEvent input);
 
-bool handleFansEdit(
+bool handleDurationEdit(
     UIState &uiState,
-    SystemState &systemState,
+    DurationSchedule &schedule,
     InputEvent input);
