@@ -189,8 +189,8 @@ void testHomeRotaryPushReturnsFalse()
 
     system.settings.modeAuto = true;
 
-    ui.carouselIndex = 2;
-    ui.screen = CAROUSEL_SCREENS_AUTO[2];
+    ui.carouselIndex = 0;
+    ui.screen = Screen::HOME;
 
     bool result = processInput(ui, system, InputEvent::ROTARY_PUSH);
 
@@ -204,8 +204,8 @@ void testHomeConfirmReturnsFalse()
 
     system.settings.modeAuto = true;
 
-    ui.carouselIndex = 2;
-    ui.screen = CAROUSEL_SCREENS_AUTO[2];
+    ui.carouselIndex = 0;
+    ui.screen = Screen::HOME;
 
     bool result = processInput(ui, system, InputEvent::CONFIRM);
 
@@ -430,6 +430,182 @@ void testLightsEditBackCancelsEditing()
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
 }
 
+void testFansViewEntersSelectModeAndResetsOption()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::VIEW;
+    ui.selectedOption = 1;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testFansSelectWrapsOptions()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 0;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(DURATION_OPTION_COUNT - 1, ui.selectedOption);
+
+    result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testFansSelectCopiesScheduleForEditing()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.fansSchedule.durationHours = 0;
+    system.settings.fansSchedule.durationMinutes = 10;
+    system.settings.fansSchedule.frequencyHours = 0;
+    system.settings.fansSchedule.frequencyMinutes = 45;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::SELECT;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::EDIT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(0, ui.editField);
+    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.durationHours);
+    TEST_ASSERT_EQUAL_INT(10, ui.editDurationSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.frequencyHours);
+    TEST_ASSERT_EQUAL_INT(45, ui.editDurationSchedule.frequencyMinutes);
+}
+
+void testFansEditWrapsDurationHoursThrough99()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editField = 0;
+    ui.editDurationSchedule.durationHours = 99;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.durationHours);
+
+    result = processInput(ui, system, InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(99, ui.editDurationSchedule.durationHours);
+}
+
+void testFansEditWrapsFrequencyMinutes()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+    ui.editField = 1;
+    ui.editDurationSchedule.frequencyMinutes = 59;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.frequencyMinutes);
+
+    result = processInput(ui, system, InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(59, ui.editDurationSchedule.frequencyMinutes);
+}
+
+void testFansEditConfirmMovesFromHourToMinute()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editField = 0;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(1, ui.editField);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::EDIT),
+        static_cast<int>(ui.mode));
+}
+
+void testFansEditConfirmCommitsSchedule()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+    ui.editField = 1;
+    ui.editDurationSchedule.durationHours = 0;
+    ui.editDurationSchedule.durationMinutes = 10;
+    ui.editDurationSchedule.frequencyHours = 2;
+    ui.editDurationSchedule.frequencyMinutes = 30;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, system.settings.fansSchedule.durationHours);
+    TEST_ASSERT_EQUAL_INT(10, system.settings.fansSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(2, system.settings.fansSchedule.frequencyHours);
+    TEST_ASSERT_EQUAL_INT(30, system.settings.fansSchedule.frequencyMinutes);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(0, ui.editField);
+}
+
+void testFansEditBackCancelsEditing()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.fansSchedule.durationMinutes = 10;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.editField = 1;
+    ui.editDurationSchedule.durationMinutes = 25;
+
+    bool result = processInput(ui, system, InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(10, system.settings.fansSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(0, ui.editField);
+}
+
 void setup()
 {
     delay(2000);
@@ -460,6 +636,15 @@ void setup()
     RUN_TEST(testLightsEditConfirmMovesFromHourToMinute);
     RUN_TEST(testLightsEditConfirmCommitsSchedule);
     RUN_TEST(testLightsEditBackCancelsEditing);
+
+    RUN_TEST(testFansViewEntersSelectModeAndResetsOption);
+    RUN_TEST(testFansSelectWrapsOptions);
+    RUN_TEST(testFansSelectCopiesScheduleForEditing);
+    RUN_TEST(testFansEditWrapsDurationHoursThrough99);
+    RUN_TEST(testFansEditWrapsFrequencyMinutes);
+    RUN_TEST(testFansEditConfirmMovesFromHourToMinute);
+    RUN_TEST(testFansEditConfirmCommitsSchedule);
+    RUN_TEST(testFansEditBackCancelsEditing);
 
     UNITY_END();
 }
