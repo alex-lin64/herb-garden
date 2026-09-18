@@ -182,6 +182,23 @@ void testHomeBackEntersScreenSaver()
         static_cast<int>(ui.screen));
 }
 
+void testScreenSaverInputReturnsHome()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::SCREEN_SAVER;
+    ui.carouselIndex = 2;
+
+    bool result = processInput(ui, system, InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::HOME),
+        static_cast<int>(ui.screen));
+    TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
+}
+
 void testHomeRotaryPushReturnsFalse()
 {
     UIState ui;
@@ -623,6 +640,7 @@ void setup()
     RUN_TEST(testHomeManualRotateCCWWraps);
 
     RUN_TEST(testHomeBackEntersScreenSaver);
+    RUN_TEST(testScreenSaverInputReturnsHome);
     RUN_TEST(testHomeRotaryPushReturnsFalse);
     RUN_TEST(testHomeConfirmReturnsFalse);
 
