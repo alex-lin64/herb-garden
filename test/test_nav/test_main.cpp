@@ -292,11 +292,11 @@ void testLightsSelectCopiesScheduleForEditing()
         static_cast<int>(UIMode::EDIT),
         static_cast<int>(ui.mode));
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
-    TEST_ASSERT_EQUAL_INT(8, ui.editSchedule.startHour);
-    TEST_ASSERT_EQUAL_INT(15, ui.editSchedule.startMinute);
-    TEST_ASSERT_EQUAL_INT(22, ui.editSchedule.endHour);
-    TEST_ASSERT_EQUAL_INT(45, ui.editSchedule.endMinute);
-    TEST_ASSERT_EQUAL_INT(3, ui.editSchedule.frequencyDays);
+    TEST_ASSERT_EQUAL_INT(8, ui.editLightSchedule.startHour);
+    TEST_ASSERT_EQUAL_INT(15, ui.editLightSchedule.startMinute);
+    TEST_ASSERT_EQUAL_INT(22, ui.editLightSchedule.endHour);
+    TEST_ASSERT_EQUAL_INT(45, ui.editLightSchedule.endMinute);
+    TEST_ASSERT_EQUAL_INT(3, ui.editLightSchedule.frequencyDays);
 }
 
 void testLightsEditWrapsStartHour()
@@ -308,17 +308,17 @@ void testLightsEditWrapsStartHour()
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 0;
     ui.editField = 0;
-    ui.editSchedule.startHour = 23;
+    ui.editLightSchedule.startHour = 23;
 
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, ui.editSchedule.startHour);
+    TEST_ASSERT_EQUAL_INT(0, ui.editLightSchedule.startHour);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(23, ui.editSchedule.startHour);
+    TEST_ASSERT_EQUAL_INT(23, ui.editLightSchedule.startHour);
 }
 
 void testLightsEditWrapsEndMinute()
@@ -330,17 +330,17 @@ void testLightsEditWrapsEndMinute()
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 1;
     ui.editField = 1;
-    ui.editSchedule.endMinute = 59;
+    ui.editLightSchedule.endMinute = 59;
 
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, ui.editSchedule.endMinute);
+    TEST_ASSERT_EQUAL_INT(0, ui.editLightSchedule.endMinute);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(59, ui.editSchedule.endMinute);
+    TEST_ASSERT_EQUAL_INT(59, ui.editLightSchedule.endMinute);
 }
 
 void testLightsEditWrapsFrequencyDays()
@@ -351,17 +351,17 @@ void testLightsEditWrapsFrequencyDays()
     ui.screen = Screen::LIGHTS;
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 2;
-    ui.editSchedule.frequencyDays = 9;
+    ui.editLightSchedule.frequencyDays = 9;
 
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(1, ui.editSchedule.frequencyDays);
+    TEST_ASSERT_EQUAL_INT(1, ui.editLightSchedule.frequencyDays);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(9, ui.editSchedule.frequencyDays);
+    TEST_ASSERT_EQUAL_INT(9, ui.editLightSchedule.frequencyDays);
 }
 
 void testLightsEditConfirmMovesFromHourToMinute()
@@ -392,9 +392,9 @@ void testLightsEditConfirmCommitsSchedule()
     ui.mode = UIMode::EDIT;
     ui.selectedOption = 0;
     ui.editField = 1;
-    ui.editSchedule.startHour = 7;
-    ui.editSchedule.startMinute = 30;
-    ui.editSchedule.frequencyDays = 4;
+    ui.editLightSchedule.startHour = 7;
+    ui.editLightSchedule.startMinute = 30;
+    ui.editLightSchedule.frequencyDays = 4;
 
     bool result = processInput(ui, system, InputEvent::CONFIRM);
 
@@ -418,7 +418,7 @@ void testLightsEditBackCancelsEditing()
     ui.screen = Screen::LIGHTS;
     ui.mode = UIMode::EDIT;
     ui.editField = 1;
-    ui.editSchedule.startHour = 12;
+    ui.editLightSchedule.startHour = 12;
 
     bool result = processInput(ui, system, InputEvent::BACK);
 

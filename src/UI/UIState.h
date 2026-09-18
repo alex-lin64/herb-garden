@@ -62,5 +62,6 @@ struct UIState
     // Used when editing a value
     int editValue = 0;
 
-    LightSchedule editSchedule;
+    LightSchedule editLightSchedule;
+    DurationSchedule editDurationSchedule;
 };

@@ -14,8 +14,10 @@ constexpr int LIGHT_OPTION_COUNT = 3;
 
 struct DurationSchedule
 {
+    int durationHours;
     int durationMinutes;
     int frequencyHours;
+    int frequencyMinutes;
 };
 
 constexpr int DURATION_OPTION_COUNT = 2;

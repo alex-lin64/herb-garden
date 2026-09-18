@@ -7,6 +7,7 @@ namespace
 {
     constexpr int HOURS_PER_DAY = 24;
     constexpr int MINUTES_PER_HOUR = 60;
+    constexpr int MAX_DURATION_HOURS = 99;
     constexpr int LIGHT_FREQUENCY_MIN = 1;
     constexpr int LIGHT_FREQUENCY_MAX = 9;
 
@@ -14,6 +15,9 @@ namespace
     constexpr int FREQUENCY_OPTION = 2;
     constexpr int TIME_OPTION_COUNT = 2;
     constexpr int HOUR_FIELD = 0;
+    constexpr int MINUTE_FIELD = 1;
+
+    constexpr int DURATION_OPTION = 0;
 
     int wrapValue(int value, int delta, int minimum, int maximum)
     {
@@ -56,6 +60,34 @@ namespace
         else
         {
             minute = wrapValue(minute, delta, 0, MINUTES_PER_HOUR - 1);
+        }
+    }
+
+    void adjustDurationSchedule(
+        DurationSchedule &schedule,
+        int selectedOption,
+        int editField,
+        int delta)
+    {
+        int &hours = selectedOption == DURATION_OPTION
+                         ? schedule.durationHours
+                         : schedule.frequencyHours;
+
+        int &minutes = selectedOption == DURATION_OPTION
+                           ? schedule.durationMinutes
+                           : schedule.frequencyMinutes;
+
+        if (editField == HOUR_FIELD)
+        {
+            hours = wrapValue(hours, delta, 0, MAX_DURATION_HOURS);
+        }
+        else
+        {
+            minutes = wrapValue(
+                minutes,
+                delta,
+                0,
+                MINUTES_PER_HOUR - 1);
         }
     }
 }
@@ -228,8 +260,8 @@ bool handleLightsSelect(
         input == InputEvent::CONFIRM)
     {
         uiState.mode = UIMode::EDIT;
-        uiState.editField = 0;
-        uiState.editSchedule = systemState.settings.lightSchedule;
+        uiState.editField = HOUR_FIELD;
+        uiState.editLightSchedule = systemState.settings.lightSchedule;
 
         return true;
     }
@@ -252,7 +284,7 @@ bool handleLightsEdit(
     if (input == InputEvent::ROTATE_CW)
     {
         adjustLightSchedule(
-            uiState.editSchedule,
+            uiState.editLightSchedule,
             uiState.selectedOption,
             uiState.editField,
             1);
@@ -262,7 +294,7 @@ bool handleLightsEdit(
     if (input == InputEvent::ROTATE_CCW)
     {
         adjustLightSchedule(
-            uiState.editSchedule,
+            uiState.editLightSchedule,
             uiState.selectedOption,
             uiState.editField,
             -1);
@@ -275,20 +307,20 @@ bool handleLightsEdit(
         if (uiState.selectedOption < TIME_OPTION_COUNT &&
             uiState.editField == HOUR_FIELD)
         {
-            uiState.editField = 1;
+            uiState.editField = MINUTE_FIELD;
             return true;
         }
 
-        systemState.settings.lightSchedule = uiState.editSchedule;
+        systemState.settings.lightSchedule = uiState.editLightSchedule;
         uiState.mode = UIMode::SELECT;
-        uiState.editField = 0;
+        uiState.editField = HOUR_FIELD;
         return true;
     }
 
     if (input == InputEvent::BACK)
     {
         uiState.mode = UIMode::SELECT;
-        uiState.editField = 0;
+        uiState.editField = HOUR_FIELD;
 
         return true;
     }
@@ -321,6 +353,37 @@ bool handleFansSelect(
     SystemState &systemState,
     InputEvent input)
 {
+    if (input == InputEvent::ROTATE_CW)
+    {
+        uiState.selectedOption =
+            (uiState.selectedOption + 1) % DURATION_OPTION_COUNT;
+        return true;
+    }
+
+    if (input == InputEvent::ROTATE_CCW)
+    {
+        uiState.selectedOption =
+            (uiState.selectedOption - 1 + DURATION_OPTION_COUNT) % DURATION_OPTION_COUNT;
+        return true;
+    }
+
+    if (input == InputEvent::ROTARY_PUSH ||
+        input == InputEvent::CONFIRM)
+    {
+        uiState.mode = UIMode::EDIT;
+        uiState.editField = 0;
+        uiState.editDurationSchedule = systemState.settings.fansSchedule;
+
+        return true;
+    }
+
+    if (input == InputEvent::BACK)
+    {
+        uiState.mode = UIMode::VIEW;
+
+        return true;
+    }
+
     return false;
 }
 
@@ -329,5 +392,49 @@ bool handleFansEdit(
     SystemState &systemState,
     InputEvent input)
 {
+    if (input == InputEvent::ROTATE_CW)
+    {
+        adjustDurationSchedule(
+            uiState.editDurationSchedule,
+            uiState.selectedOption,
+            uiState.editField,
+            1);
+        return true;
+    }
+
+    if (input == InputEvent::ROTATE_CCW)
+    {
+        adjustDurationSchedule(
+            uiState.editDurationSchedule,
+            uiState.selectedOption,
+            uiState.editField,
+            -1);
+        return true;
+    }
+
+    if (input == InputEvent::ROTARY_PUSH ||
+        input == InputEvent::CONFIRM)
+    {
+        if (uiState.selectedOption < DURATION_OPTION_COUNT &&
+            uiState.editField == HOUR_FIELD)
+        {
+            uiState.editField = MINUTE_FIELD;
+            return true;
+        }
+
+        systemState.settings.fansSchedule =
+            uiState.editDurationSchedule;
+        uiState.mode = UIMode::SELECT;
+        uiState.editField = HOUR_FIELD;
+        return true;
+    }
+
+    if (input == InputEvent::BACK)
+    {
+        uiState.mode = UIMode::SELECT;
+        uiState.editField = HOUR_FIELD;
+        return true;
+    }
+
     return false;
 }

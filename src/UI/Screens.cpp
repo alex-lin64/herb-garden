@@ -286,7 +286,7 @@ void drawLightsScreen(
 
     const LightSchedule &schedule =
         uiState.mode == UIMode::EDIT
-            ? uiState.editSchedule
+            ? uiState.editLightSchedule
             : state.settings.lightSchedule;
 
     const char *columnLabels[] = {
@@ -534,9 +534,137 @@ void drawFansScreen(
     const SystemState &state,
     const UIState &uiState)
 {
+    constexpr int TIME_COLON_OFFSET = 1;
+    constexpr int TIME_MINUTE_OFFSET = 2;
+    constexpr int MINUTE_TEXT_OFFSET = 3;
+    constexpr int COLUMN_STEP = 64;
+    constexpr int COLUMN_WIDTH = 63;
+    constexpr int COLUMN_COUNT = DURATION_OPTION_COUNT;
+    constexpr int SELECTION_TOP = 21;
+    constexpr int SELECTION_HEIGHT = 18;
+    constexpr int EDIT_TOP = 22;
+    constexpr int EDIT_HEIGHT = 17;
+    constexpr int VALUE_BASELINE = 36;
+    constexpr int LABEL_BASELINE = 55;
+    constexpr int SELECTION_PADDING = 3;
+    constexpr int EDIT_PADDING = 2;
+    constexpr int EDIT_CORNER_RADIUS = 2;
+    constexpr int HOUR_FIELD = 0;
+    constexpr int MINUTE_FIELD = 1;
+
     display.clearBuffer();
 
     drawHeader(display, state, "FANS");
 
+    const DurationSchedule &schedule =
+        uiState.mode == UIMode::EDIT
+            ? uiState.editDurationSchedule
+            : state.settings.fansSchedule;
+
+    const char *columnLabels[] = {
+        "DUR",
+        "FRQ"};
+
+    char durationValue[8];
+    char frequencyValue[8];
+
+    snprintf(
+        durationValue,
+        sizeof(durationValue),
+        "%02d:%02d",
+        schedule.durationHours,
+        schedule.durationMinutes);
+
+    snprintf(
+        frequencyValue,
+        sizeof(frequencyValue),
+        "%02d:%02d",
+        schedule.frequencyHours,
+        schedule.frequencyMinutes);
+
+    const char *columnValues[] = {
+        durationValue,
+        frequencyValue};
+
+    for (int column = 0; column < COLUMN_COUNT; column++)
+    {
+        int columnLeft = column * COLUMN_STEP;
+        int columnWidth = COLUMN_WIDTH;
+
+        bool selected =
+            (uiState.mode == UIMode::SELECT ||
+             uiState.mode == UIMode::EDIT) &&
+            uiState.selectedOption == column;
+
+        display.setFont(u8g2_font_7x13B_tr);
+
+        int valueWidth = display.getStrWidth(columnValues[column]);
+        int valueX = columnLeft + (columnWidth - valueWidth) / 2;
+
+        if (selected && uiState.mode == UIMode::SELECT)
+        {
+            display.setDrawColor(1);
+            display.drawBox(
+                valueX - SELECTION_PADDING,
+                SELECTION_TOP,
+                valueWidth + SELECTION_PADDING * 2,
+                SELECTION_HEIGHT);
+
+            display.setDrawColor(0);
+            display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
+            display.setDrawColor(1);
+        }
+        else if (selected && uiState.mode == UIMode::EDIT)
+        {
+            display.setDrawColor(1);
+            display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
+
+            int hourWidth = display.getStrWidth("00");
+            int colonX = valueX + hourWidth + TIME_COLON_OFFSET;
+            int minuteX = valueX + display.getStrWidth("00:") + TIME_MINUTE_OFFSET;
+            int highlightX =
+                uiState.editField == HOUR_FIELD
+                    ? valueX
+                    : minuteX;
+
+            display.drawRBox(
+                highlightX - EDIT_PADDING,
+                EDIT_TOP,
+                hourWidth + EDIT_PADDING * 2,
+                EDIT_HEIGHT,
+                EDIT_CORNER_RADIUS);
+
+            display.setDrawColor(
+                uiState.editField == HOUR_FIELD ? 0 : 1);
+            display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
+
+            display.setDrawColor(
+                uiState.editField == MINUTE_FIELD ? 0 : 1);
+            display.drawStr(
+                minuteX,
+                VALUE_BASELINE,
+                columnValues[column] + MINUTE_TEXT_OFFSET);
+
+            display.setDrawColor(1);
+            display.drawStr(colonX, VALUE_BASELINE, ":");
+        }
+        else
+        {
+            display.setDrawColor(1);
+            display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
+        }
+
+        display.setDrawColor(1);
+        display.setFont(u8g2_font_6x10_tr);
+
+        int labelWidth = display.getStrWidth(columnLabels[column]);
+
+        display.drawStr(
+            columnLeft + (columnWidth - labelWidth) / 2,
+            LABEL_BASELINE,
+            columnLabels[column]);
+    }
+
+    display.setDrawColor(1);
     display.sendBuffer();
 }
