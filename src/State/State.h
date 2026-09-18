@@ -28,8 +28,17 @@ struct SystemSettings
     bool useFahrenheit = DEFAULT_USE_FAHRENHEIT;
 
     LightSchedule lightSchedule;
-    DurationSchedule waterSchedule;
-    DurationSchedule fansSchedule;
+    DurationSchedule waterSchedule = {
+        DEFAULT_WATER_DURATION_HOURS,
+        DEFAULT_WATER_DURATION_MINUTES,
+        DEFAULT_WATER_FREQUENCY_HOURS,
+        DEFAULT_WATER_FREQUENCY_MINUTES};
+
+    DurationSchedule fansSchedule = {
+        DEFAULT_FANS_DURATION_HOURS,
+        DEFAULT_FANS_DURATION_MINUTES,
+        DEFAULT_FANS_FREQUENCY_HOURS,
+        DEFAULT_FANS_FREQUENCY_MINUTES};
 };
 
 struct SensorReadings

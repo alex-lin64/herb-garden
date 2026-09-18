@@ -90,6 +90,34 @@ namespace
                 MINUTES_PER_HOUR - 1);
         }
     }
+
+    bool handleOptionNavigation(
+        UIState &uiState,
+        int optionCount,
+        InputEvent input)
+    {
+        if (input == InputEvent::ROTATE_CW)
+        {
+            uiState.selectedOption =
+                (uiState.selectedOption + 1) % optionCount;
+            return true;
+        }
+
+        if (input == InputEvent::ROTATE_CCW)
+        {
+            uiState.selectedOption =
+                (uiState.selectedOption - 1 + optionCount) % optionCount;
+            return true;
+        }
+
+        if (input == InputEvent::BACK)
+        {
+            uiState.mode = UIMode::VIEW;
+            return true;
+        }
+
+        return false;
+    }
 }
 
 Carousel getActiveCarousel(const SystemState &systemState)
@@ -242,19 +270,8 @@ bool handleLightsSelect(
     SystemState &systemState,
     InputEvent input)
 {
-    if (input == InputEvent::ROTATE_CW)
-    {
-        uiState.selectedOption =
-            (uiState.selectedOption + 1) % LIGHT_OPTION_COUNT;
+    if (handleOptionNavigation(uiState, LIGHT_OPTION_COUNT, input))
         return true;
-    }
-
-    if (input == InputEvent::ROTATE_CCW)
-    {
-        uiState.selectedOption =
-            (uiState.selectedOption - 1 + LIGHT_OPTION_COUNT) % LIGHT_OPTION_COUNT;
-        return true;
-    }
 
     if (input == InputEvent::ROTARY_PUSH ||
         input == InputEvent::CONFIRM)
@@ -262,13 +279,6 @@ bool handleLightsSelect(
         uiState.mode = UIMode::EDIT;
         uiState.editField = HOUR_FIELD;
         uiState.editLightSchedule = systemState.settings.lightSchedule;
-
-        return true;
-    }
-
-    if (input == InputEvent::BACK)
-    {
-        uiState.mode = UIMode::VIEW;
 
         return true;
     }
@@ -356,19 +366,8 @@ bool handleFansSelect(
     SystemState &systemState,
     InputEvent input)
 {
-    if (input == InputEvent::ROTATE_CW)
-    {
-        uiState.selectedOption =
-            (uiState.selectedOption + 1) % DURATION_OPTION_COUNT;
+    if (handleOptionNavigation(uiState, DURATION_OPTION_COUNT, input))
         return true;
-    }
-
-    if (input == InputEvent::ROTATE_CCW)
-    {
-        uiState.selectedOption =
-            (uiState.selectedOption - 1 + DURATION_OPTION_COUNT) % DURATION_OPTION_COUNT;
-        return true;
-    }
 
     if (input == InputEvent::ROTARY_PUSH ||
         input == InputEvent::CONFIRM)
@@ -376,13 +375,6 @@ bool handleFansSelect(
         uiState.mode = UIMode::EDIT;
         uiState.editField = 0;
         uiState.editDurationSchedule = systemState.settings.fansSchedule;
-
-        return true;
-    }
-
-    if (input == InputEvent::BACK)
-    {
-        uiState.mode = UIMode::VIEW;
 
         return true;
     }
