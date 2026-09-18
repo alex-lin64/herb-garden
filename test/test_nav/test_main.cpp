@@ -776,6 +776,43 @@ void testModeSelectMovesAndCommitsManual()
     TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::VIEW), static_cast<int>(ui.mode));
 }
 
+void testModeSelectWrapsBetweenAutoAndManual()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 0;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+
+    result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testModeSelectBackCancelsWithoutChangingSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(ui, system, InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_TRUE(system.settings.modeAuto);
+    TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::VIEW), static_cast<int>(ui.mode));
+}
+
 void setup()
 {
     delay(2000);
@@ -824,6 +861,8 @@ void setup()
     RUN_TEST(testWaterEditCommitsOnlyWaterSchedule);
     RUN_TEST(testModeViewEntersSelectAtCurrentSetting);
     RUN_TEST(testModeSelectMovesAndCommitsManual);
+    RUN_TEST(testModeSelectWrapsBetweenAutoAndManual);
+    RUN_TEST(testModeSelectBackCancelsWithoutChangingSetting);
 
     UNITY_END();
 }

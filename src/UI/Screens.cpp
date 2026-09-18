@@ -156,6 +156,7 @@ void drawHomeScreen(
     constexpr int VALUE_BASELINE = 31;
     constexpr int LABEL_BASELINE = 42;
     constexpr int STATUS_BASELINE = 53;
+    constexpr int MANUAL_STATUS_BASELINE = 62;
     constexpr int FOOTER_BASELINE = 63;
 
     display.clearBuffer();
@@ -250,7 +251,9 @@ void drawHomeScreen(
 
     display.drawStr(
         waterX,
-        STATUS_BASELINE,
+        state.settings.modeAuto
+            ? STATUS_BASELINE
+            : MANUAL_STATUS_BASELINE,
         waterText);
 
     // --------------------------------------------------
@@ -819,7 +822,7 @@ void drawModeScreen(
 
             if (uiState.mode == UIMode::SELECT)
             {
-                display.drawRBox(
+                display.drawRFrame(
                     valueX - SELECTION_PADDING,
                     SELECTION_TOP,
                     selectionWidth,
@@ -835,7 +838,8 @@ void drawModeScreen(
                     SELECTION_HEIGHT);
             }
 
-            display.setDrawColor(0);
+            display.setDrawColor(
+                uiState.mode == UIMode::SELECT ? 1 : 0);
             display.drawStr(valueX, VALUE_BASELINE, optionLabels[option]);
         }
         else
