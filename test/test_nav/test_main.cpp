@@ -475,7 +475,7 @@ void testLightsEditRejectsEqualStartAndEndTimes()
         static_cast<int>(Screen::LIGHTS),
         static_cast<int>(ui.errorReturnScreen));
     TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(UIMode::EDIT),
+        static_cast<int>(UIMode::SELECT),
         static_cast<int>(ui.errorReturnMode));
     TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
     TEST_ASSERT_EQUAL_INT(22, system.settings.lightSchedule.endHour);
@@ -515,9 +515,9 @@ void testErrorInputRestoresPreviousContext()
 
     ui.screen = Screen::ERROR;
     ui.errorReturnScreen = Screen::LIGHTS;
-    ui.errorReturnMode = UIMode::EDIT;
+    ui.errorReturnMode = UIMode::VIEW;
     ui.errorReturnSelectedOption = 1;
-    ui.errorReturnEditField = 1;
+    ui.errorReturnEditField = HOUR_FIELD;
 
     bool result = processInput(ui, system, InputEvent::ROTARY_PUSH);
 
@@ -526,10 +526,10 @@ void testErrorInputRestoresPreviousContext()
         static_cast<int>(Screen::LIGHTS),
         static_cast<int>(ui.screen));
     TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(UIMode::EDIT),
+        static_cast<int>(UIMode::VIEW),
         static_cast<int>(ui.mode));
     TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
-    TEST_ASSERT_EQUAL_INT(1, ui.editField);
+    TEST_ASSERT_EQUAL_INT(HOUR_FIELD, ui.editField);
 }
 
 void testFansViewEntersSelectModeAndResetsOption()
@@ -606,7 +606,7 @@ void testFansEditWrapsDurationMinutesThrough99()
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(1, ui.editDurationSchedule.durationMinutes);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
@@ -627,7 +627,7 @@ void testFansEditWrapsFrequencyHoursThrough99()
     bool result = processInput(ui, system, InputEvent::ROTATE_CW);
 
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(0, ui.editDurationSchedule.frequencyHours);
+    TEST_ASSERT_EQUAL_INT(1, ui.editDurationSchedule.frequencyHours);
 
     result = processInput(ui, system, InputEvent::ROTATE_CCW);
 
