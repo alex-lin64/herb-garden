@@ -23,6 +23,7 @@ constexpr int DURATION_OPTION_COUNT = 2;
 struct SystemSettings
 {
     bool modeAuto = DEFAULT_MODE_AUTO;
+    bool manualLightsOn = false;
     bool useFahrenheit = DEFAULT_USE_FAHRENHEIT;
 
     LightSchedule lightSchedule;
@@ -49,6 +50,7 @@ struct SystemState
     SystemSettings settings;
 
     // Outputs
+    // Resolved physical output, regardless of whether auto or manual mode is active.
     bool lightsOn = false;
     bool fansOn = false;
     bool watering = false;

@@ -14,6 +14,9 @@ constexpr uint8_t SCL_PIN = 4;
 
 constexpr uint8_t FLOAT_SWITCH_PIN = 6;
 
+// Light relay output, pull HIGH to trigger
+constexpr uint8_t LIGHTS_PIN = 9;
+
 // -------------------------
 // OLED / Rotary encoder
 // -------------------------

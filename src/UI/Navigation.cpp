@@ -518,9 +518,30 @@ bool handleLightsManual(
     switch (uiState.mode)
     {
     case UIMode::VIEW:
+        if (input == InputEvent::ROTARY_PUSH ||
+            input == InputEvent::CONFIRM)
+        {
+            uiState.mode = UIMode::SELECT;
+            uiState.selectedOption =
+                systemState.settings.manualLightsOn ? 0 : 1;
+            return true;
+        }
+
         return handleView(uiState, systemState, input);
 
     case UIMode::SELECT:
+        if (handleOptionNavigation(uiState, 2, input))
+            return true;
+
+        if (input == InputEvent::ROTARY_PUSH ||
+            input == InputEvent::CONFIRM)
+        {
+            systemState.settings.manualLightsOn =
+                uiState.selectedOption == 0;
+            uiState.mode = UIMode::VIEW;
+            return true;
+        }
+
         return false;
 
     case UIMode::EDIT:

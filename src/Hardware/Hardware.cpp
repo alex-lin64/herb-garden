@@ -25,6 +25,10 @@ void Hardware::initPins()
     // Init float switch pin
     pinMode(FLOAT_SWITCH_PIN, INPUT_PULLUP);
 
+    // Init light control pin, pull high to trigger
+    pinMode(LIGHTS_PIN, OUTPUT);
+    digitalWrite(LIGHTS_PIN, LOW);
+
     // Init rotary encoder and button pins
     pinMode(OLED_CONFIRM_PIN, INPUT_PULLUP);
     pinMode(OLED_PUSH_PIN, INPUT_PULLUP);
@@ -37,11 +41,8 @@ void Hardware::initSHT31()
 {
     while (!sht31.begin(SHT31_ADDRESS))
     {
-        Serial.println("Connecting to SHT31...");
         delay(1000);
     }
-
-    Serial.println("SHT31 connected!");
 }
 
 void Hardware::initDisplay()
@@ -79,8 +80,6 @@ void Hardware::initWiFiNTP()
 {
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-
-    Serial.println("Starting WiFi...");
 }
 
 bool Hardware::updateSensors(
@@ -170,20 +169,27 @@ void Hardware::updateWiFiNTP()
     {
         if (!ntpStarted)
         {
-            Serial.println("WiFi connected!");
-
             configTzTime(
                 "EST5EDT",
                 "pool.ntp.org",
                 "time.nist.gov");
 
             ntpStarted = true;
-
-            Serial.println("NTP started.");
         }
     }
     else
     {
         ntpStarted = false;
     }
+}
+
+void Hardware::setLights(bool on)
+{
+    digitalWrite(LIGHTS_PIN, on ? HIGH : LOW);
+
+    Serial.printf(
+        "Lights: requested=%s GPIO=%u readback=%d\n",
+        on ? "ON" : "OFF",
+        LIGHTS_PIN,
+        digitalRead(LIGHTS_PIN));
 }

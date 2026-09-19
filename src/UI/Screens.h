@@ -33,7 +33,8 @@ void drawModeScreen(
     const UIState &uiState);
 void drawLightsManualScreen(
     Display &display,
-    const SystemState &state);
+    const SystemState &state,
+    const UIState &uiState);
 void drawFansManualScreen(
     Display &display,
     const SystemState &state);

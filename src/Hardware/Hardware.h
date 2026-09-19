@@ -17,6 +17,7 @@ public:
     // true if sensor readings changed, false if no change
     bool updateSensors(
         SensorReadings &sensorReadings);
+    void setLights(bool on);
     InputEvent getInput();
     void updateWiFiNTP();
 

@@ -23,4 +23,7 @@ private:
     UI ui;
 
     unsigned long lastSensorUpdate = 0;
+    unsigned long lastClockUpdate = 0;
+    bool appliedLightsOn = false;
+    struct tm localTime = {};
 };
