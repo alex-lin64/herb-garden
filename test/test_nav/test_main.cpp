@@ -697,6 +697,156 @@ void testFansEditBackCancelsEditing()
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
 }
 
+void testManualHomeRotatesToLightsAndWaterScreens()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    ui.screen = Screen::HOME;
+    ui.carouselIndex = 0;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(1, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::LIGHTS_MANUAL),
+        static_cast<int>(ui.screen));
+
+    result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(2, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::FANS_MANUAL),
+        static_cast<int>(ui.screen));
+
+    result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(3, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::WATER_MANUAL),
+        static_cast<int>(ui.screen));
+}
+
+void testManualLightsSelectStartsAtCurrentOffSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    system.settings.manualLightsOn = false;
+    ui.screen = Screen::LIGHTS_MANUAL;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+}
+
+void testManualLightsSelectStartsAtCurrentOnSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    system.settings.manualLightsOn = true;
+    ui.screen = Screen::LIGHTS_MANUAL;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(ui, system, InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testManualLightsSelectCommitsOn()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    system.settings.manualLightsOn = false;
+    ui.screen = Screen::LIGHTS_MANUAL;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+
+    result = processInput(ui, system, InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_TRUE(system.settings.manualLightsOn);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testManualLightsSelectBackCancels()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    system.settings.manualLightsOn = false;
+    ui.screen = Screen::LIGHTS_MANUAL;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 0;
+
+    bool result = processInput(ui, system, InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_FALSE(system.settings.manualLightsOn);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testManualWaterViewUsesCarouselNavigation()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    ui.screen = Screen::WATER_MANUAL;
+    ui.mode = UIMode::VIEW;
+    ui.carouselIndex = 3;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(4, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::MODE),
+        static_cast<int>(ui.screen));
+}
+
+void testManualWaterSelectDoesNotEdit()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+    ui.screen = Screen::WATER_MANUAL;
+    ui.mode = UIMode::SELECT;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+}
+
 void testWaterSelectCopiesScheduleForEditing()
 {
     UIState ui;
@@ -856,6 +1006,14 @@ void setup()
     RUN_TEST(testFansEditConfirmCommitsImmediately);
     RUN_TEST(testFansEditConfirmCommitsSchedule);
     RUN_TEST(testFansEditBackCancelsEditing);
+
+    RUN_TEST(testManualHomeRotatesToLightsAndWaterScreens);
+    RUN_TEST(testManualLightsSelectStartsAtCurrentOffSetting);
+    RUN_TEST(testManualLightsSelectStartsAtCurrentOnSetting);
+    RUN_TEST(testManualLightsSelectCommitsOn);
+    RUN_TEST(testManualLightsSelectBackCancels);
+    RUN_TEST(testManualWaterViewUsesCarouselNavigation);
+    RUN_TEST(testManualWaterSelectDoesNotEdit);
 
     RUN_TEST(testWaterSelectCopiesScheduleForEditing);
     RUN_TEST(testWaterEditCommitsOnlyWaterSchedule);
