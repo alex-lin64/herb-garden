@@ -37,7 +37,8 @@ void drawLightsManualScreen(
     const UIState &uiState);
 void drawFansManualScreen(
     Display &display,
-    const SystemState &state);
+    const SystemState &state,
+    const UIState &uiState);
 void drawWaterManualScreen(
     Display &display,
     const SystemState &state);

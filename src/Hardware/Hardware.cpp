@@ -29,6 +29,10 @@ void Hardware::initPins()
     pinMode(LIGHTS_PIN, OUTPUT);
     digitalWrite(LIGHTS_PIN, LOW);
 
+    // Init fan control pin, pull high to trigger
+    pinMode(FANS_PIN, OUTPUT);
+    digitalWrite(FANS_PIN, LOW);
+
     // Init rotary encoder and button pins
     pinMode(OLED_CONFIRM_PIN, INPUT_PULLUP);
     pinMode(OLED_PUSH_PIN, INPUT_PULLUP);
@@ -192,4 +196,15 @@ void Hardware::setLights(bool on)
         on ? "ON" : "OFF",
         LIGHTS_PIN,
         digitalRead(LIGHTS_PIN));
+}
+
+void Hardware::setFans(bool on)
+{
+    digitalWrite(FANS_PIN, on ? HIGH : LOW);
+
+    Serial.printf(
+        "Fans: requested=%s GPIO=%u readback=%d\n",
+        on ? "ON" : "OFF",
+        FANS_PIN,
+        digitalRead(FANS_PIN));
 }

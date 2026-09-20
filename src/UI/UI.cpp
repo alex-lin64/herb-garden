@@ -63,7 +63,7 @@ void UI::updateDisplay(SystemState &state)
         drawLightsManualScreen(display, state, uiState);
         break;
     case Screen::FANS_MANUAL:
-        drawFansManualScreen(display, state);
+        drawFansManualScreen(display, state, uiState);
         break;
     case Screen::WATER_MANUAL:
         drawWaterManualScreen(display, state);

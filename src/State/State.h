@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+#include <time.h>
 #include "Config.h"
 
 struct LightSchedule
@@ -24,6 +26,7 @@ struct SystemSettings
 {
     bool modeAuto = DEFAULT_MODE_AUTO;
     bool manualLightsOn = false;
+    bool manualFansOn = false;
     bool useFahrenheit = DEFAULT_USE_FAHRENHEIT;
 
     LightSchedule lightSchedule;
@@ -54,4 +57,8 @@ struct SystemState
     bool lightsOn = false;
     bool fansOn = false;
     bool watering = false;
+
+    // Absolute anchors for recurring duration schedules.
+    int64_t fansScheduleAnchor = 0;
+    int64_t waterScheduleAnchor = 0;
 };

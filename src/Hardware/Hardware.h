@@ -18,6 +18,7 @@ public:
     bool updateSensors(
         SensorReadings &sensorReadings);
     void setLights(bool on);
+    void setFans(bool on);
     InputEvent getInput();
     void updateWiFiNTP();
 

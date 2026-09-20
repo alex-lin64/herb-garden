@@ -17,6 +17,9 @@ constexpr uint8_t FLOAT_SWITCH_PIN = 6;
 // Light relay output, pull HIGH to trigger
 constexpr uint8_t LIGHTS_PIN = 9;
 
+// Fan relay output, pull HIGH to trigger
+constexpr uint8_t FANS_PIN = 10;
+
 // -------------------------
 // OLED / Rotary encoder
 // -------------------------

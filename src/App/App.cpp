@@ -8,6 +8,7 @@ void App::begin()
     Serial.begin(9600);
 
     hardware.begin();
+    scheduleController.begin(state);
     ui.begin(hardware);
 }
 
@@ -18,31 +19,39 @@ void App::update()
     // Keep Wi-Fi/NTP state updated. NTP supplies the clock used by schedules.
     hardware.updateWiFiNTP();
 
-    // Resolve the desired light state from either the schedule or manual mode.
-    if (state.settings.modeAuto)
+    // Refresh time and anchors once per second.
+    if (now - lastClockUpdate >= PERIPHERAL_INTERVAL)
     {
-        // A schedule only needs minute-level precision, so avoid polling the
-        // system clock on every loop iteration.
-        if (now - lastClockUpdate >= 1000)
+        lastClockUpdate = now;
+        if (getLocalTime(&localTime, 0))
         {
-            lastClockUpdate = now;
-            if (getLocalTime(&localTime, 0))
+            scheduleController.update(state, mktime(&localTime));
+
+            if (state.settings.modeAuto)
             {
                 state.lightsOn =
                     resolveLightsOn(state.settings, localTime);
             }
         }
     }
-    else
+
+    // Resolve manual outputs immediately, without waiting for the clock.
+    if (!state.settings.modeAuto)
     {
         state.lightsOn = state.settings.manualLightsOn;
+        state.fansOn = state.settings.manualFansOn;
     }
 
-    // Only touch the GPIO when the desired output changes.
+    // Only touch each GPIO when its desired output changes.
     if (state.lightsOn != appliedLightsOn)
     {
         hardware.setLights(state.lightsOn);
         appliedLightsOn = state.lightsOn;
+    }
+    if (state.fansOn != appliedFansOn)
+    {
+        hardware.setFans(state.fansOn);
+        appliedFansOn = state.fansOn;
     }
 
     // Read sensors periodically instead of on every loop iteration.

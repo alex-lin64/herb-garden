@@ -10,6 +10,7 @@
 #include "State/State.h"
 #include "Hardware/Hardware.h"
 #include "UI/UI.h"
+#include "Control/ScheduleController.h"
 
 class App
 {
@@ -21,9 +22,11 @@ private:
     SystemState state;
     Hardware hardware;
     UI ui;
+    ScheduleController scheduleController;
 
     unsigned long lastSensorUpdate = 0;
     unsigned long lastClockUpdate = 0;
     bool appliedLightsOn = false;
+    bool appliedFansOn = false;
     struct tm localTime = {};
 };
