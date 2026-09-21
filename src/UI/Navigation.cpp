@@ -9,11 +9,8 @@ namespace
     constexpr int MINUTES_PER_HOUR = 60;
     constexpr int MAX_DURATION_MINUTES = 99;
     constexpr int MAX_FREQUENCY_HOURS = 99;
-    constexpr int LIGHT_FREQUENCY_MIN = 1;
-    constexpr int LIGHT_FREQUENCY_MAX = 9;
 
     constexpr int START_TIME_OPTION = 0;
-    constexpr int FREQUENCY_OPTION = 2;
     constexpr int TIME_OPTION_COUNT = 2;
     constexpr int HOUR_FIELD = 0;
     constexpr int MINUTE_FIELD = 1;
@@ -39,16 +36,6 @@ namespace
         int editField,
         int delta)
     {
-        if (selectedOption == FREQUENCY_OPTION)
-        {
-            schedule.frequencyDays = wrapValue(
-                schedule.frequencyDays,
-                delta,
-                LIGHT_FREQUENCY_MIN,
-                LIGHT_FREQUENCY_MAX);
-            return;
-        }
-
         int &hour = selectedOption == START_TIME_OPTION
                         ? schedule.startHour
                         : schedule.endHour;

@@ -11,7 +11,6 @@ constexpr int DEFAULT_LIGHT_START_HOUR = 8;
 constexpr int DEFAULT_LIGHT_START_MINUTE = 0;
 constexpr int DEFAULT_LIGHT_END_HOUR = 22;
 constexpr int DEFAULT_LIGHT_END_MINUTE = 0;
-constexpr int DEFAULT_LIGHT_FREQUENCY_DAYS = 1;
 
 // Default fan schedule
 constexpr int DEFAULT_FANS_DURATION_MINUTES = 10;

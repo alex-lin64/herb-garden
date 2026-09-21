@@ -29,7 +29,14 @@ namespace
         schedule.startMinute = 0;
         schedule.endHour = 22;
         schedule.endMinute = 0;
-        schedule.frequencyDays = 1;
+        return schedule;
+    }
+
+    DurationSchedule testDurationSchedule()
+    {
+        DurationSchedule schedule;
+        schedule.durationMinutes = 10;
+        schedule.frequencyHours = 30;
         return schedule;
     }
 
@@ -74,19 +81,6 @@ void testLightsTurnOffAtScheduleEnd()
         isLightsScheduledOn(schedule, makeTime(22, 0)));
 }
 
-void testLightFrequencySkipsNonScheduledDays()
-{
-    LightSchedule schedule = testSchedule();
-    schedule.frequencyDays = 2;
-
-    TEST_ASSERT_TRUE(
-        isLightsScheduledOn(schedule, makeTime(10, 0, 0)));
-    TEST_ASSERT_FALSE(
-        isLightsScheduledOn(schedule, makeTime(10, 0, 1)));
-    TEST_ASSERT_TRUE(
-        isLightsScheduledOn(schedule, makeTime(10, 0, 2)));
-}
-
 void testManualLightsIgnoreScheduleWhenOff()
 {
     SystemSettings settings;
@@ -120,6 +114,76 @@ void testAutoLightsUseSchedule()
         resolveLightsOn(settings, makeTime(2, 0)));
     TEST_ASSERT_TRUE(
         resolveLightsOn(settings, makeTime(12, 0)));
+}
+
+void testDurationScheduleIsOffBeforeAnchor()
+{
+    DurationSchedule schedule = testDurationSchedule();
+
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, 999));
+}
+
+void testDurationScheduleIsOnAtAnchor()
+{
+    DurationSchedule schedule = testDurationSchedule();
+
+    TEST_ASSERT_TRUE(
+        isDurationScheduleOn(schedule, 1000, 1000));
+}
+
+void testDurationScheduleTurnsOffAfterDuration()
+{
+    DurationSchedule schedule = testDurationSchedule();
+
+    TEST_ASSERT_TRUE(
+        isDurationScheduleOn(schedule, 1000, 1000 + 9 * 60));
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, 1000 + 10 * 60));
+}
+
+void testDurationScheduleRepeatsAfterFrequency()
+{
+    DurationSchedule schedule = testDurationSchedule();
+    time_t nextAnchor = 1000 + 30 * 60 * 60;
+
+    TEST_ASSERT_TRUE(
+        isDurationScheduleOn(schedule, 1000, nextAnchor));
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, nextAnchor + 10 * 60));
+}
+
+void testDurationScheduleRejectsInvalidValues()
+{
+    DurationSchedule schedule = testDurationSchedule();
+
+    schedule.frequencyHours = 0;
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, 1000));
+
+    schedule = testDurationSchedule();
+    schedule.durationMinutes = 0;
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, 1000));
+}
+
+void testScheduleControllerSetsAutomaticFansState()
+{
+    clearSchedulePreferences();
+
+    SystemState state;
+    state.settings.modeAuto = true;
+    state.settings.fansSchedule = testDurationSchedule();
+
+    ScheduleController controller;
+    controller.begin(state);
+    controller.update(state, 1000);
+
+    TEST_ASSERT_TRUE(state.fansOn);
+
+    controller.update(state, 1000 + 10 * 60);
+
+    TEST_ASSERT_FALSE(state.fansOn);
 }
 
 void testScheduleControllerInitializesMissingAnchors()
@@ -166,6 +230,10 @@ void testScheduleControllerRestoresStateAfterReboot()
     clearSchedulePreferences();
 
     SystemState savedState;
+    savedState.settings.lightSchedule.startHour = 7;
+    savedState.settings.lightSchedule.startMinute = 30;
+    savedState.settings.lightSchedule.endHour = 21;
+    savedState.settings.lightSchedule.endMinute = 45;
     savedState.settings.fansSchedule.durationMinutes = 25;
     savedState.settings.waterSchedule.frequencyHours = 18;
 
@@ -187,6 +255,18 @@ void testScheduleControllerRestoresStateAfterReboot()
         TEST_ASSERT_EQUAL_INT(
             18,
             restoredState.settings.waterSchedule.frequencyHours);
+        TEST_ASSERT_EQUAL_INT(
+            7,
+            restoredState.settings.lightSchedule.startHour);
+        TEST_ASSERT_EQUAL_INT(
+            30,
+            restoredState.settings.lightSchedule.startMinute);
+        TEST_ASSERT_EQUAL_INT(
+            21,
+            restoredState.settings.lightSchedule.endHour);
+        TEST_ASSERT_EQUAL_INT(
+            45,
+            restoredState.settings.lightSchedule.endMinute);
         TEST_ASSERT_TRUE(restoredState.fansScheduleAnchor == 12345);
         TEST_ASSERT_TRUE(restoredState.waterScheduleAnchor == 12345);
     }
@@ -202,10 +282,15 @@ void setup()
     RUN_TEST(testLightsTurnOnAtScheduleStart);
     RUN_TEST(testLightsRemainOnDuringSchedule);
     RUN_TEST(testLightsTurnOffAtScheduleEnd);
-    RUN_TEST(testLightFrequencySkipsNonScheduledDays);
     RUN_TEST(testManualLightsIgnoreScheduleWhenOff);
     RUN_TEST(testManualLightsIgnoreScheduleWhenOn);
     RUN_TEST(testAutoLightsUseSchedule);
+    RUN_TEST(testDurationScheduleIsOffBeforeAnchor);
+    RUN_TEST(testDurationScheduleIsOnAtAnchor);
+    RUN_TEST(testDurationScheduleTurnsOffAfterDuration);
+    RUN_TEST(testDurationScheduleRepeatsAfterFrequency);
+    RUN_TEST(testDurationScheduleRejectsInvalidValues);
+    RUN_TEST(testScheduleControllerSetsAutomaticFansState);
 
     RUN_TEST(testScheduleControllerInitializesMissingAnchors);
     RUN_TEST(testScheduleControllerResetsOnlyChangedScheduleAnchor);

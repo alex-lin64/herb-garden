@@ -297,7 +297,6 @@ void testLightsSelectCopiesScheduleForEditing()
     system.settings.lightSchedule.startMinute = 15;
     system.settings.lightSchedule.endHour = 22;
     system.settings.lightSchedule.endMinute = 45;
-    system.settings.lightSchedule.frequencyDays = 3;
 
     ui.screen = Screen::LIGHTS;
     ui.mode = UIMode::SELECT;
@@ -313,7 +312,6 @@ void testLightsSelectCopiesScheduleForEditing()
     TEST_ASSERT_EQUAL_INT(15, ui.editLightSchedule.startMinute);
     TEST_ASSERT_EQUAL_INT(22, ui.editLightSchedule.endHour);
     TEST_ASSERT_EQUAL_INT(45, ui.editLightSchedule.endMinute);
-    TEST_ASSERT_EQUAL_INT(3, ui.editLightSchedule.frequencyDays);
 }
 
 void testLightsEditWrapsStartHour()
@@ -360,27 +358,6 @@ void testLightsEditWrapsEndMinute()
     TEST_ASSERT_EQUAL_INT(59, ui.editLightSchedule.endMinute);
 }
 
-void testLightsEditWrapsFrequencyDays()
-{
-    UIState ui;
-    SystemState system;
-
-    ui.screen = Screen::LIGHTS;
-    ui.mode = UIMode::EDIT;
-    ui.selectedOption = 2;
-    ui.editLightSchedule.frequencyDays = 9;
-
-    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(1, ui.editLightSchedule.frequencyDays);
-
-    result = processInput(ui, system, InputEvent::ROTATE_CCW);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(9, ui.editLightSchedule.frequencyDays);
-}
-
 void testLightsEditConfirmMovesFromHourToMinute()
 {
     UIState ui;
@@ -411,14 +388,12 @@ void testLightsEditConfirmCommitsSchedule()
     ui.editField = 1;
     ui.editLightSchedule.startHour = 7;
     ui.editLightSchedule.startMinute = 30;
-    ui.editLightSchedule.frequencyDays = 4;
 
     bool result = processInput(ui, system, InputEvent::CONFIRM);
 
     TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_INT(7, system.settings.lightSchedule.startHour);
     TEST_ASSERT_EQUAL_INT(30, system.settings.lightSchedule.startMinute);
-    TEST_ASSERT_EQUAL_INT(4, system.settings.lightSchedule.frequencyDays);
     TEST_ASSERT_EQUAL_INT(
         static_cast<int>(UIMode::SELECT),
         static_cast<int>(ui.mode));
@@ -990,7 +965,6 @@ void setup()
     RUN_TEST(testLightsSelectCopiesScheduleForEditing);
     RUN_TEST(testLightsEditWrapsStartHour);
     RUN_TEST(testLightsEditWrapsEndMinute);
-    RUN_TEST(testLightsEditWrapsFrequencyDays);
     RUN_TEST(testLightsEditConfirmMovesFromHourToMinute);
     RUN_TEST(testLightsEditConfirmCommitsSchedule);
     RUN_TEST(testLightsEditBackCancelsEditing);

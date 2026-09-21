@@ -190,21 +190,9 @@ void Hardware::updateWiFiNTP()
 void Hardware::setLights(bool on)
 {
     digitalWrite(LIGHTS_PIN, on ? HIGH : LOW);
-
-    Serial.printf(
-        "Lights: requested=%s GPIO=%u readback=%d\n",
-        on ? "ON" : "OFF",
-        LIGHTS_PIN,
-        digitalRead(LIGHTS_PIN));
 }
 
 void Hardware::setFans(bool on)
 {
     digitalWrite(FANS_PIN, on ? HIGH : LOW);
-
-    Serial.printf(
-        "Fans: requested=%s GPIO=%u readback=%d\n",
-        on ? "ON" : "OFF",
-        FANS_PIN,
-        digitalRead(FANS_PIN));
 }

@@ -287,8 +287,8 @@ void drawLightsScreen(
     constexpr int TIME_COLUMN_COUNT = 2;
     constexpr int HOUR_FIELD = 0;
     constexpr int MINUTE_FIELD = 1;
-    constexpr int COLUMN_STEP = 43;
-    constexpr int COLUMN_WIDTH = 42;
+    constexpr int COLUMN_STEP = 64;
+    constexpr int COLUMN_WIDTH = 63;
     constexpr int SELECTION_TOP = 21;
     constexpr int SELECTION_HEIGHT = 18;
     constexpr int EDIT_TOP = 22;
@@ -310,12 +310,10 @@ void drawLightsScreen(
 
     const char *columnLabels[] = {
         "BEG",
-        "END",
-        "FRQ"};
+        "END"};
 
     char beginValue[8];
     char endValue[8];
-    char frequencyValue[8];
 
     snprintf(
         beginValue,
@@ -331,16 +329,9 @@ void drawLightsScreen(
         schedule.endHour,
         schedule.endMinute);
 
-    snprintf(
-        frequencyValue,
-        sizeof(frequencyValue),
-        "%dd",
-        schedule.frequencyDays);
-
     const char *columnValues[] = {
         beginValue,
-        endValue,
-        frequencyValue};
+        endValue};
 
     for (int column = 0; column < LIGHT_OPTION_COUNT; column++)
     {
@@ -789,7 +780,7 @@ void drawModeScreen(
     constexpr int VALUE_BASELINE = 45;
     constexpr int SELECTION_PADDING = 3;
     constexpr int SELECTION_RADIUS = 3;
-    constexpr int AUTO_RIGHT_EXTENSION = 3;
+    constexpr int AUTO_RIGHT_EXTENSION = 4;
 
     display.clearBuffer();
     drawHeader(display, state, "MODE");

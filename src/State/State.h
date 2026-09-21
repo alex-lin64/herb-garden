@@ -9,10 +9,9 @@ struct LightSchedule
     int startMinute = DEFAULT_LIGHT_START_MINUTE;
     int endHour = DEFAULT_LIGHT_END_HOUR;
     int endMinute = DEFAULT_LIGHT_END_MINUTE;
-    int frequencyDays = DEFAULT_LIGHT_FREQUENCY_DAYS;
 };
 
-constexpr int LIGHT_OPTION_COUNT = 3;
+constexpr int LIGHT_OPTION_COUNT = 2;
 
 struct DurationSchedule
 {
