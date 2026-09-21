@@ -10,6 +10,8 @@
 
 namespace
 {
+    const char *scheduleNamespace = "schedules_test";
+
     struct tm makeTime(
         int hour,
         int minute,
@@ -40,10 +42,10 @@ namespace
         return schedule;
     }
 
-    void clearSchedulePreferences()
+    void clearSchedulePreferences(const char *namespaceName)
     {
         Preferences preferences;
-        preferences.begin("schedules", false);
+        preferences.begin(namespaceName, false);
         preferences.clear();
         preferences.end();
     }
@@ -169,14 +171,14 @@ void testDurationScheduleRejectsInvalidValues()
 
 void testScheduleControllerSetsAutomaticFansState()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
     state.settings.modeAuto = true;
     state.settings.fansSchedule = testDurationSchedule();
 
     ScheduleController controller;
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 1000);
 
     TEST_ASSERT_TRUE(state.fansOn);
@@ -188,11 +190,11 @@ void testScheduleControllerSetsAutomaticFansState()
 
 void testScheduleControllerInitializesMissingAnchors()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
     ScheduleController controller;
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
 
     TEST_ASSERT_TRUE(state.fansScheduleAnchor == 0);
     TEST_ASSERT_TRUE(state.waterScheduleAnchor == 0);
@@ -205,11 +207,11 @@ void testScheduleControllerInitializesMissingAnchors()
 
 void testScheduleControllerResetsOnlyChangedScheduleAnchor()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
     ScheduleController controller;
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 1000);
 
     state.settings.fansSchedule.durationMinutes++;
@@ -227,7 +229,7 @@ void testScheduleControllerResetsOnlyChangedScheduleAnchor()
 
 void testScheduleControllerRestoresStateAfterReboot()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState savedState;
     savedState.settings.lightSchedule.startHour = 7;
@@ -239,7 +241,7 @@ void testScheduleControllerRestoresStateAfterReboot()
 
     {
         ScheduleController controller;
-        controller.begin(savedState);
+        controller.begin(savedState, scheduleNamespace);
         controller.update(savedState, 12345);
     }
 
@@ -247,7 +249,7 @@ void testScheduleControllerRestoresStateAfterReboot()
 
     {
         ScheduleController controller;
-        controller.begin(restoredState);
+        controller.begin(restoredState, scheduleNamespace);
 
         TEST_ASSERT_EQUAL_INT(
             25,
@@ -340,7 +342,7 @@ void testDurationScheduleDoesNotTurnOnBeforeAnchor()
 
 void testScheduleControllerUpdateBeforeBeginDoesNothing()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
@@ -365,7 +367,7 @@ void testScheduleControllerUpdateBeforeBeginDoesNothing()
 
 void testScheduleControllerSetsAutomaticWaterState()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
@@ -374,7 +376,7 @@ void testScheduleControllerSetsAutomaticWaterState()
 
     ScheduleController controller;
 
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 1000);
 
     TEST_ASSERT_TRUE(state.watering);
@@ -388,7 +390,7 @@ void testScheduleControllerSetsAutomaticWaterState()
 
 void testScheduleControllerDoesNotResolveOutputsInManualMode()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
@@ -403,7 +405,7 @@ void testScheduleControllerDoesNotResolveOutputsInManualMode()
 
     ScheduleController controller;
 
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 1000 + 10 * 60);
 
     TEST_ASSERT_TRUE(state.fansOn);
@@ -413,13 +415,13 @@ void testScheduleControllerDoesNotResolveOutputsInManualMode()
 
 void testScheduleControllerWaterScheduleChangeResetsOnlyWaterAnchor()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
     ScheduleController controller;
 
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 1000);
 
     state.settings.waterSchedule.durationMinutes++;
@@ -437,13 +439,13 @@ void testScheduleControllerWaterScheduleChangeResetsOnlyWaterAnchor()
 
 void testScheduleControllerLightScheduleChangeDoesNotResetAnchors()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
     ScheduleController controller;
 
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 1000);
 
     state.settings.lightSchedule.startHour++;
@@ -461,7 +463,7 @@ void testScheduleControllerLightScheduleChangeDoesNotResetAnchors()
 
 void testScheduleControllerRestoresWaterScheduleAfterReboot()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState savedState;
 
@@ -471,7 +473,7 @@ void testScheduleControllerRestoresWaterScheduleAfterReboot()
     {
         ScheduleController controller;
 
-        controller.begin(savedState);
+        controller.begin(savedState, scheduleNamespace);
         controller.update(savedState, 5000);
     }
 
@@ -480,7 +482,7 @@ void testScheduleControllerRestoresWaterScheduleAfterReboot()
     {
         ScheduleController controller;
 
-        controller.begin(restoredState);
+        controller.begin(restoredState, scheduleNamespace);
 
         TEST_ASSERT_EQUAL_INT(
             17,
@@ -494,7 +496,7 @@ void testScheduleControllerRestoresWaterScheduleAfterReboot()
 
 void testScheduleControllerUsesExistingDefaultsWhenPreferencesAreMissing()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
@@ -511,7 +513,7 @@ void testScheduleControllerUsesExistingDefaultsWhenPreferencesAreMissing()
 
     ScheduleController controller;
 
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
 
     TEST_ASSERT_EQUAL_INT(
         9,
@@ -548,7 +550,7 @@ void testScheduleControllerUsesExistingDefaultsWhenPreferencesAreMissing()
 
 void testScheduleControllerMissingAnchorsAreInitializedOnUpdate()
 {
-    clearSchedulePreferences();
+    clearSchedulePreferences(scheduleNamespace);
 
     SystemState state;
 
@@ -557,7 +559,7 @@ void testScheduleControllerMissingAnchorsAreInitializedOnUpdate()
 
     ScheduleController controller;
 
-    controller.begin(state);
+    controller.begin(state, scheduleNamespace);
     controller.update(state, 5000);
 
     TEST_ASSERT_EQUAL_INT(

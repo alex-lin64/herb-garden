@@ -12,7 +12,7 @@ bool isDurationScheduleOn(
 class ScheduleController
 {
 public:
-    void begin(SystemState &state);
+    void begin(SystemState &state, const char *preferencesNamespace = "schedules");
     void update(SystemState &state, time_t now);
 
 private:

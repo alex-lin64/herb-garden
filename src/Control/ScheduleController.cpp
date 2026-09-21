@@ -49,11 +49,11 @@ bool isDurationScheduleOn(
     return (elapsed % period) < duration;
 }
 
-void ScheduleController::begin(SystemState &state)
+void ScheduleController::begin(SystemState &state, const char *preferencesNamespace)
 {
     // Open persistent storage and restore the last saved schedules and anchors.
     // A missing anchor is stored as zero and is initialized after valid time is available.
-    preferences.begin("schedules", false);
+    preferences.begin(preferencesNamespace, false);
 
     // Light schedule
     state.settings.lightSchedule.startHour =
