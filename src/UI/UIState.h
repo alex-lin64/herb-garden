@@ -51,6 +51,8 @@ struct UIState
 {
     Screen screen = Screen::HOME;
     UIMode mode = UIMode::VIEW;
+    Screen errorReturnScreen = Screen::HOME;
+    UIMode errorReturnMode = UIMode::VIEW;
 
     int carouselIndex = 0;
 
@@ -65,9 +67,6 @@ struct UIState
 
     LightSchedule editLightSchedule;
     DurationSchedule editDurationSchedule;
-
-    Screen errorReturnScreen = Screen::HOME;
-    UIMode errorReturnMode = UIMode::VIEW;
     int errorReturnSelectedOption = 0;
     int errorReturnEditField = 0;
 };
