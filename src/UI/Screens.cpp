@@ -417,7 +417,7 @@ void drawLightsScreen(
                         ? valueX
                         : minuteX;
 
-                display.drawRBox(
+                display.drawRFrame(
                     highlightX - EDIT_PADDING,
                     EDIT_TOP,
                     hourWidth + EDIT_PADDING * 2,
@@ -436,12 +436,6 @@ void drawLightsScreen(
 
                 if (uiState.editField == HOUR_FIELD)
                 {
-                    // Hour selected: black on white
-                    display.setDrawColor(0);
-                }
-                else
-                {
-                    // Hour not selected: white on black
                     display.setDrawColor(1);
                 }
 
@@ -456,12 +450,6 @@ void drawLightsScreen(
 
                 if (uiState.editField == MINUTE_FIELD)
                 {
-                    // Minute selected: black on white
-                    display.setDrawColor(0);
-                }
-                else
-                {
-                    // Minute not selected: white on black
                     display.setDrawColor(1);
                 }
 
@@ -486,14 +474,14 @@ void drawLightsScreen(
                 // FRQ -- unchanged
                 display.setDrawColor(1);
 
-                display.drawRBox(
+                display.drawRFrame(
                     valueX - EDIT_PADDING,
                     EDIT_TOP,
                     valueWidth + EDIT_PADDING * 2,
                     EDIT_HEIGHT,
                     EDIT_CORNER_RADIUS);
 
-                display.setDrawColor(0);
+                display.setDrawColor(1);
 
                 display.drawStr(
                     valueX,
@@ -622,14 +610,14 @@ void drawFansScreen(
             display.setDrawColor(1);
             display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
 
-            display.drawRBox(
+            display.drawRFrame(
                 valueX - EDIT_PADDING,
                 EDIT_TOP,
                 valueWidth + EDIT_PADDING * 2,
                 EDIT_HEIGHT,
                 EDIT_CORNER_RADIUS);
 
-            display.setDrawColor(0);
+            display.setDrawColor(1);
             display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
         }
         else
@@ -736,14 +724,14 @@ void drawWaterScreen(
             display.setDrawColor(1);
             display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
 
-            display.drawRBox(
+            display.drawRFrame(
                 valueX - EDIT_PADDING,
                 EDIT_TOP,
                 valueWidth + EDIT_PADDING * 2,
                 EDIT_HEIGHT,
                 EDIT_CORNER_RADIUS);
 
-            display.setDrawColor(0);
+            display.setDrawColor(1);
             display.drawStr(valueX, VALUE_BASELINE, columnValues[column]);
         }
         else
