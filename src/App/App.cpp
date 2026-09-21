@@ -34,6 +34,7 @@ void App::update()
     {
         state.lightsOn = state.settings.manualLightsOn;
         state.fansOn = state.settings.manualFansOn;
+        state.watering = state.settings.manualWaterOn;
     }
 
     // Only touch each GPIO when its desired output changes.
@@ -46,6 +47,11 @@ void App::update()
     {
         hardware.setFans(state.fansOn);
         appliedFansOn = state.fansOn;
+    }
+    if (state.watering != appliedWatering)
+    {
+        hardware.setWater(state.watering);
+        appliedWatering = state.watering;
     }
 
     // Read sensors periodically instead of on every loop iteration.

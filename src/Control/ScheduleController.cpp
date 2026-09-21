@@ -10,7 +10,7 @@ namespace
         return left.startHour == right.startHour &&
                left.startMinute == right.startMinute &&
                left.endHour == right.endHour &&
-             left.endMinute == right.endMinute;
+               left.endMinute == right.endMinute;
     }
 
     constexpr time_t SECONDS_PER_MINUTE = 60;
@@ -131,6 +131,11 @@ bool ScheduleController::updateSchedules(
         state.fansScheduleAnchor = now;
         changed = true;
     }
+    if (state.waterScheduleAnchor <= 0)
+    {
+        state.waterScheduleAnchor = now;
+        changed = true;
+    }
 
     // Save light schedule edits so they survive a reboot.
     if (!schedulesEqual(
@@ -140,13 +145,6 @@ bool ScheduleController::updateSchedules(
         savedLightSchedule = state.settings.lightSchedule;
         changed = true;
     }
-
-    if (state.waterScheduleAnchor <= 0)
-    {
-        state.waterScheduleAnchor = now;
-        changed = true;
-    }
-
     // Reset only the fans anchor when the fans schedule changes.
     if (!schedulesEqual(
             state.settings.fansSchedule,
@@ -187,6 +185,10 @@ void ScheduleController::resolveAutomaticOutputs(
     state.fansOn = isDurationScheduleOn(
         state.settings.fansSchedule,
         state.fansScheduleAnchor,
+        now);
+    state.watering = isDurationScheduleOn(
+        state.settings.waterSchedule,
+        state.waterScheduleAnchor,
         now);
 }
 

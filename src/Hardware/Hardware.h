@@ -17,8 +17,11 @@ public:
     // true if sensor readings changed, false if no change
     bool updateSensors(
         SensorReadings &sensorReadings);
+    // Controls GPIO pins to hardware
     void setLights(bool on);
     void setFans(bool on);
+    void setWater(bool on);
+    // Logistical shit
     InputEvent getInput();
     void updateWiFiNTP();
 

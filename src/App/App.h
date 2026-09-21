@@ -28,5 +28,6 @@ private:
     unsigned long lastClockUpdate = 0;
     bool appliedLightsOn = false;
     bool appliedFansOn = false;
+    bool appliedWatering = false;
     struct tm localTime = {};
 };

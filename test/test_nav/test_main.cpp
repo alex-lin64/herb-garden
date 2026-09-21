@@ -650,28 +650,6 @@ void testFansEditConfirmCommitsSchedule()
     TEST_ASSERT_EQUAL_INT(0, ui.editField);
 }
 
-void testFansEditBackCancelsEditing()
-{
-    UIState ui;
-    SystemState system;
-
-    system.settings.fansSchedule.durationMinutes = 10;
-
-    ui.screen = Screen::FANS;
-    ui.mode = UIMode::EDIT;
-    ui.editField = 0;
-    ui.editDurationSchedule.durationMinutes = 25;
-
-    bool result = processInput(ui, system, InputEvent::BACK);
-
-    TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_INT(10, system.settings.fansSchedule.durationMinutes);
-    TEST_ASSERT_EQUAL_INT(
-        static_cast<int>(UIMode::SELECT),
-        static_cast<int>(ui.mode));
-    TEST_ASSERT_EQUAL_INT(0, ui.editField);
-}
-
 void testManualHomeRotatesToLightsAndWaterScreens()
 {
     UIState ui;
@@ -938,6 +916,687 @@ void testModeSelectBackCancelsWithoutChangingSetting()
     TEST_ASSERT_EQUAL_INT(static_cast<int>(UIMode::VIEW), static_cast<int>(ui.mode));
 }
 
+void testLightsEditNoneDoesNothing()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editField = HOUR_FIELD;
+    ui.editLightSchedule.startHour = 10;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::NONE);
+
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(
+        10,
+        ui.editLightSchedule.startHour);
+    TEST_ASSERT_EQUAL_INT(
+        HOUR_FIELD,
+        ui.editField);
+}
+
+void testLightsSelectNoneDoesNothing()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::NONE);
+
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+}
+
+void testModeViewRotaryPushUsesCurrentSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::VIEW;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testModeSelectCommitsAuto()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 0;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_TRUE(system.settings.modeAuto);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testManualWaterSelectBackCancels()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualWaterOn = true;
+
+    ui.screen = Screen::WATER_MANUAL;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 0;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_TRUE(system.settings.manualWaterOn);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testManualWaterSelectCommitsOff()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualWaterOn = true;
+
+    ui.screen = Screen::WATER_MANUAL;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_FALSE(system.settings.manualWaterOn);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testManualWaterSelectStartsAtCurrentOnSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualWaterOn = true;
+
+    ui.screen = Screen::WATER_MANUAL;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testManualWaterSelectStartsAtCurrentOffSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualWaterOn = false;
+
+    ui.screen = Screen::WATER_MANUAL;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+}
+
+void testManualFansSelectStartsAtCurrentOffSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualFansOn = false;
+
+    ui.screen = Screen::FANS_MANUAL;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+}
+void testManualFansSelectStartsAtCurrentOnSetting()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualFansOn = true;
+
+    ui.screen = Screen::FANS_MANUAL;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+void testManualFansSelectCommitsOff()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualFansOn = true;
+
+    ui.screen = Screen::FANS_MANUAL;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_FALSE(system.settings.manualFansOn);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testManualFansSelectBackCancels()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.manualFansOn = true;
+
+    ui.screen = Screen::FANS_MANUAL;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_TRUE(system.settings.manualFansOn);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+}
+
+void testWaterEditBackCancelsEditing()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.waterSchedule.durationMinutes = 5;
+    system.settings.waterSchedule.frequencyHours = 12;
+
+    ui.screen = Screen::WATER;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+
+    ui.editDurationSchedule.durationMinutes = 20;
+    ui.editDurationSchedule.frequencyHours = 24;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+
+    TEST_ASSERT_EQUAL_INT(
+        5,
+        system.settings.waterSchedule.durationMinutes);
+
+    TEST_ASSERT_EQUAL_INT(
+        12,
+        system.settings.waterSchedule.frequencyHours);
+
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+}
+
+void testFansEditBackCancelsEditing()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.fansSchedule.durationMinutes = 10;
+    system.settings.fansSchedule.frequencyHours = 2;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editDurationSchedule.durationMinutes = 25;
+    ui.editDurationSchedule.frequencyHours = 8;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+
+    TEST_ASSERT_EQUAL_INT(
+        10,
+        system.settings.fansSchedule.durationMinutes);
+
+    TEST_ASSERT_EQUAL_INT(
+        2,
+        system.settings.fansSchedule.frequencyHours);
+
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+
+    TEST_ASSERT_EQUAL_INT(0, ui.editField);
+}
+
+void testFansEditFrequencyWrapsMinimum()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+    ui.editDurationSchedule.frequencyHours = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        99,
+        ui.editDurationSchedule.frequencyHours);
+}
+
+void testFansEditDurationWrapsMinimum()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editDurationSchedule.durationMinutes = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        99,
+        ui.editDurationSchedule.durationMinutes);
+}
+
+void testLightsSelectBackReturnsToView()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::BACK);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::VIEW),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(1, ui.selectedOption);
+}
+
+void testLightsEditWrapsStartMinute()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editField = MINUTE_FIELD;
+    ui.editLightSchedule.startMinute = 59;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        0,
+        ui.editLightSchedule.startMinute);
+
+    result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        59,
+        ui.editLightSchedule.startMinute);
+}
+
+void testLightsEditWrapsEndHour()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 1;
+    ui.editField = HOUR_FIELD;
+    ui.editLightSchedule.endHour = 23;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        0,
+        ui.editLightSchedule.endHour);
+
+    result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        23,
+        ui.editLightSchedule.endHour);
+}
+
+void testLightsEditRotaryPushMovesToMinute()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+    ui.editField = HOUR_FIELD;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(MINUTE_FIELD, ui.editField);
+}
+
+void testLightsViewRotaryPushEntersSelect()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::VIEW;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTARY_PUSH);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(UIMode::SELECT),
+        static_cast<int>(ui.mode));
+    TEST_ASSERT_EQUAL_INT(0, ui.selectedOption);
+}
+
+void testLightsViewRotatesToPreviousScreen()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::VIEW;
+    ui.carouselIndex = 1;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CCW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(CAROUSEL_SCREENS_AUTO[0]),
+        static_cast<int>(ui.screen));
+}
+
+void testLightsViewRotatesToNextScreen()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+
+    ui.screen = Screen::LIGHTS;
+    ui.mode = UIMode::VIEW;
+    ui.carouselIndex = 1;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(2, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(CAROUSEL_SCREENS_AUTO[2]),
+        static_cast<int>(ui.screen));
+}
+
+void testErrorNoneDoesNothing()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::ERROR;
+    ui.errorReturnScreen = Screen::LIGHTS;
+    ui.errorReturnMode = UIMode::EDIT;
+    ui.errorReturnSelectedOption = 1;
+    ui.errorReturnEditField = 0;
+
+    bool result = processInput(ui, system, InputEvent::NONE);
+
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::ERROR),
+        static_cast<int>(ui.screen));
+}
+
+void testHomeNoneReturnsFalse()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+    ui.screen = Screen::HOME;
+    ui.carouselIndex = 2;
+
+    bool result = processInput(ui, system, InputEvent::NONE);
+
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(2, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::HOME),
+        static_cast<int>(ui.screen));
+}
+
+void testScreenSaverAnyInputReturnsHome()
+{
+    UIState ui;
+    SystemState system;
+
+    ui.screen = Screen::SCREEN_SAVER;
+    ui.carouselIndex = 4;
+
+    bool result = processInput(ui, system, InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(Screen::HOME),
+        static_cast<int>(ui.screen));
+    TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
+}
+
+void testSwitchingToManualUsesManualCarousel()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = true;
+
+    ui.screen = Screen::MODE;
+    ui.mode = UIMode::SELECT;
+    ui.selectedOption = 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::CONFIRM);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_FALSE(system.settings.modeAuto);
+
+    // Now navigation should use the manual carousel.
+    ui.screen = Screen::HOME;
+    ui.carouselIndex = 0;
+
+    result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(1, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(CAROUSEL_SCREENS_MANUAL[1]),
+        static_cast<int>(ui.screen));
+}
+
+void testManualHomeCarouselWrapsCW()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.modeAuto = false;
+
+    ui.screen = Screen::WATER_MANUAL;
+    ui.carouselIndex = CAROUSEL_SCREEN_COUNT_MANUAL - 1;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::ROTATE_CW);
+
+    TEST_ASSERT_TRUE(result);
+    TEST_ASSERT_EQUAL_INT(0, ui.carouselIndex);
+    TEST_ASSERT_EQUAL_INT(
+        static_cast<int>(CAROUSEL_SCREENS_MANUAL[0]),
+        static_cast<int>(ui.screen));
+}
+
+void testFansEditConfirmDoesNotUseSystemUntilCommit()
+{
+    UIState ui;
+    SystemState system;
+
+    system.settings.fansSchedule.durationMinutes = 10;
+
+    ui.screen = Screen::FANS;
+    ui.mode = UIMode::EDIT;
+    ui.selectedOption = 0;
+
+    ui.editDurationSchedule.durationMinutes = 25;
+
+    bool result = processInput(
+        ui,
+        system,
+        InputEvent::NONE);
+
+    TEST_ASSERT_FALSE(result);
+    TEST_ASSERT_EQUAL_INT(
+        10,
+        system.settings.fansSchedule.durationMinutes);
+    TEST_ASSERT_EQUAL_INT(
+        25,
+        ui.editDurationSchedule.durationMinutes);
+}
+
 void setup()
 {
     delay(2000);
@@ -995,6 +1654,43 @@ void setup()
     RUN_TEST(testModeSelectMovesAndCommitsManual);
     RUN_TEST(testModeSelectWrapsBetweenAutoAndManual);
     RUN_TEST(testModeSelectBackCancelsWithoutChangingSetting);
+
+    RUN_TEST(testHomeNoneReturnsFalse);
+    RUN_TEST(testScreenSaverAnyInputReturnsHome);
+    RUN_TEST(testErrorNoneDoesNothing);
+
+    RUN_TEST(testLightsViewRotatesToNextScreen);
+    RUN_TEST(testLightsViewRotatesToPreviousScreen);
+    RUN_TEST(testLightsViewRotaryPushEntersSelect);
+    RUN_TEST(testLightsSelectBackReturnsToView);
+
+    RUN_TEST(testLightsEditWrapsStartMinute);
+    RUN_TEST(testLightsEditWrapsEndHour);
+    RUN_TEST(testLightsEditRotaryPushMovesToMinute);
+
+    RUN_TEST(testFansEditDurationWrapsMinimum);
+    RUN_TEST(testFansEditFrequencyWrapsMinimum);
+
+    RUN_TEST(testWaterEditBackCancelsEditing);
+
+    RUN_TEST(testManualFansSelectStartsAtCurrentOffSetting);
+    RUN_TEST(testManualFansSelectStartsAtCurrentOnSetting);
+    RUN_TEST(testManualFansSelectCommitsOff);
+    RUN_TEST(testManualFansSelectBackCancels);
+
+    RUN_TEST(testManualWaterSelectStartsAtCurrentOffSetting);
+    RUN_TEST(testManualWaterSelectStartsAtCurrentOnSetting);
+    RUN_TEST(testManualWaterSelectCommitsOff);
+    RUN_TEST(testManualWaterSelectBackCancels);
+
+    RUN_TEST(testModeSelectCommitsAuto);
+    RUN_TEST(testModeViewRotaryPushUsesCurrentSetting);
+
+    RUN_TEST(testLightsSelectNoneDoesNothing);
+    RUN_TEST(testLightsEditNoneDoesNothing);
+
+    RUN_TEST(testManualHomeCarouselWrapsCW);
+    RUN_TEST(testSwitchingToManualUsesManualCarousel);
 
     UNITY_END();
 }

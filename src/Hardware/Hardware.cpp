@@ -33,6 +33,10 @@ void Hardware::initPins()
     pinMode(FANS_PIN, OUTPUT);
     digitalWrite(FANS_PIN, LOW);
 
+    // Init water control pin, pull high to trigger
+    pinMode(WATER_PIN, OUTPUT);
+    digitalWrite(WATER_PIN, LOW);
+
     // Init rotary encoder and button pins
     pinMode(OLED_CONFIRM_PIN, INPUT_PULLUP);
     pinMode(OLED_PUSH_PIN, INPUT_PULLUP);
@@ -195,4 +199,9 @@ void Hardware::setLights(bool on)
 void Hardware::setFans(bool on)
 {
     digitalWrite(FANS_PIN, on ? HIGH : LOW);
+}
+
+void Hardware::setWater(bool on)
+{
+    digitalWrite(WATER_PIN, on ? HIGH : LOW);
 }

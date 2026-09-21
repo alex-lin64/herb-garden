@@ -66,7 +66,7 @@ void UI::updateDisplay(SystemState &state)
         drawFansManualScreen(display, state, uiState);
         break;
     case Screen::WATER_MANUAL:
-        drawWaterManualScreen(display, state);
+        drawWaterManualScreen(display, state, uiState);
         break;
     default:
         drawHomeScreen(display, state);

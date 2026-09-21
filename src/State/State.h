@@ -26,6 +26,7 @@ struct SystemSettings
     bool modeAuto = DEFAULT_MODE_AUTO;
     bool manualLightsOn = false;
     bool manualFansOn = false;
+    bool manualWaterOn = false;
     bool useFahrenheit = DEFAULT_USE_FAHRENHEIT;
 
     LightSchedule lightSchedule;
