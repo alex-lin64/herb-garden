@@ -5,8 +5,8 @@
 // I2C
 // -------------------------
 
-constexpr uint8_t SDA_PIN = 5;
-constexpr uint8_t SCL_PIN = 4;
+constexpr uint8_t SDA_PIN = 4;
+constexpr uint8_t SCL_PIN = 5;
 
 // -------------------------
 // Float switch
