@@ -243,8 +243,8 @@ void drawHomeScreen(
 
     const char *waterText =
         state.sensorReadings.floatClosed
-            ? "WATER OK"
-            : "WATER LOW";
+            ? "WATER LOW"
+            : "WATER OK";
 
     int waterWidth = display.getStrWidth(waterText);
     int waterX = (DISPLAY_WIDTH - waterWidth) / 2;
