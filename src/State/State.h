@@ -61,4 +61,6 @@ struct SystemState
     // Absolute anchors for recurring duration schedules.
     int64_t fansScheduleAnchor = 0;
     int64_t waterScheduleAnchor = 0;
+    // Next time the plant will be watered
+    time_t nextWatering = 0;
 };

@@ -25,4 +25,8 @@ private:
     void save(SystemState &state);
     bool updateSchedules(SystemState &state, time_t now);
     void resolveAutomaticOutputs(SystemState &state, time_t now);
+    time_t getNextWateringTime(
+        const DurationSchedule &schedule,
+        time_t anchor,
+        time_t now);
 };

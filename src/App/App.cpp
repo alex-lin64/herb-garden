@@ -25,7 +25,12 @@ void App::update()
         lastClockUpdate = now;
         if (getLocalTime(&localTime, 0))
         {
+            time_t old_watering = state.nextWatering;
             scheduleController.update(state, mktime(&localTime));
+            if (old_watering != state.nextWatering)
+            {
+                ui.markScreenDirty(); // mark dirty if new next watering time is available
+            }
         }
     }
 

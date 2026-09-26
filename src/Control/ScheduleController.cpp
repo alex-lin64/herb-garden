@@ -190,6 +190,10 @@ void ScheduleController::resolveAutomaticOutputs(
         state.settings.waterSchedule,
         state.waterScheduleAnchor,
         now);
+    state.nextWatering = getNextWateringTime(
+        state.settings.waterSchedule,
+        state.waterScheduleAnchor,
+        now);
 }
 
 void ScheduleController::save(SystemState &state)
@@ -226,4 +230,35 @@ void ScheduleController::save(SystemState &state)
     preferences.putLong64(
         "water_anchor",
         state.waterScheduleAnchor);
+}
+
+time_t ScheduleController::getNextWateringTime(
+    const DurationSchedule &schedule,
+    time_t anchor,
+    time_t now)
+{
+    if (anchor <= 0 ||
+        schedule.frequencyHours <= 0 ||
+        schedule.durationMinutes <= 0)
+    {
+        return 0;
+    }
+
+    time_t period =
+        schedule.frequencyHours * SECONDS_PER_HOUR;
+
+    if (now < anchor)
+        return anchor;
+
+    time_t elapsed = now - anchor;
+
+    time_t periodsElapsed =
+        elapsed / period;
+
+    time_t next =
+        anchor + (periodsElapsed + 1) * period;
+
+    // If we're currently inside a watering period,
+    // the next watering is the next period.
+    return next;
 }

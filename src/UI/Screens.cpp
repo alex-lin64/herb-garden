@@ -283,7 +283,25 @@ void drawHomeScreen(
 
     if (state.settings.modeAuto)
     {
-        const char *nextWaterText = "Next: --:--";
+        char nextWaterText[20];
+
+        if (state.nextWatering > 0)
+        {
+            struct tm nextTime;
+            localtime_r(
+                &state.nextWatering,
+                &nextTime);
+
+            sprintf(
+                nextWaterText,
+                "Next: %02d:%02d",
+                nextTime.tm_hour,
+                nextTime.tm_min);
+        }
+        else
+        {
+            strcpy(nextWaterText, "Next: --:--");
+        }
 
         int nextWidth = display.getStrWidth(nextWaterText);
         int nextX = (DISPLAY_WIDTH - nextWidth) / 2;
