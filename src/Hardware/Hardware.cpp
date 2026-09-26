@@ -47,10 +47,11 @@ void Hardware::initPins()
 
 void Hardware::initSHT31()
 {
-    while (!sht31.begin(SHT31_ADDRESS))
+    if (sht31Ready)
     {
-        delay(1000);
+        return;
     }
+    sht31Ready = sht31.begin(SHT31_ADDRESS);
 }
 
 void Hardware::initDisplay()
@@ -99,19 +100,30 @@ bool Hardware::updateSensors(
     float oldHumidity = sensorReadings.humidity;
     bool oldFloatClosed = sensorReadings.floatClosed;
 
-    // Read SHT31 sensor
-    sensorReadings.temperatureC = sht31.readTemperature();
-    sensorReadings.temperatureF =
-        celsiusToFahrenheit(
-            sensorReadings.temperatureC,
-            -1.0f);
-
-    sensorReadings.humidity =
-        sht31.readHumidity();
-
     // Read float switch
     sensorReadings.floatClosed =
         digitalRead(FLOAT_SWITCH_PIN) == LOW;
+
+    // try init sht31 again if not initialized already
+    initSHT31();
+
+    if (sht31Ready)
+    {
+        float temperatureC = sht31.readTemperature();
+        float humidity = sht31.readHumidity();
+
+        // Only update readings if the sensor returned valid values
+        if (!isnan(temperatureC) && !isnan(humidity))
+        {
+            sensorReadings.temperatureC = temperatureC;
+            sensorReadings.temperatureF =
+                celsiusToFahrenheit(
+                    temperatureC,
+                    -1.0f);
+
+            sensorReadings.humidity = humidity;
+        }
+    }
 
     // Check whether anything changed
     return round(sensorReadings.temperatureC * 10) !=

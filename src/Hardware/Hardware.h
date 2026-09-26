@@ -38,6 +38,7 @@ private:
     bool wasPressed(uint8_t pin, bool &lastState);
 
     Adafruit_SHT31 sht31;
+    bool sht31Ready = false;
 
     U8G2_SH1106_128X64_NONAME_F_HW_I2C display{
         U8G2_R0,

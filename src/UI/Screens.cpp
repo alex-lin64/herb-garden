@@ -177,25 +177,46 @@ void drawHomeScreen(
 
     if (state.settings.useFahrenheit)
     {
-        sprintf(
-            tempText,
-            "%.1f F",
-            state.sensorReadings.temperatureF);
+        if (state.sensorReadings.temperatureF == -100.0f)
+        {
+            strcpy(tempText, "--.- F");
+        }
+        else
+        {
+            sprintf(
+                tempText,
+                "%.1f F",
+                state.sensorReadings.temperatureF);
+        }
     }
     else
     {
-        sprintf(
-            tempText,
-            "%.1f C",
-            state.sensorReadings.temperatureC);
+        if (state.sensorReadings.temperatureC == -100.0f)
+        {
+            strcpy(tempText, "--.- C");
+        }
+        else
+        {
+            sprintf(
+                tempText,
+                "%.1f C",
+                state.sensorReadings.temperatureC);
+        }
     }
 
     char humidityText[20];
 
-    sprintf(
-        humidityText,
-        "%.1f %%",
-        state.sensorReadings.humidity);
+    if (state.sensorReadings.humidity == -100.0f)
+    {
+        strcpy(humidityText, "--.- %");
+    }
+    else
+    {
+        sprintf(
+            humidityText,
+            "%.1f %%",
+            state.sensorReadings.humidity);
+    }
 
     // Center temperature in left half
     int tempWidth = display.getStrWidth(tempText);

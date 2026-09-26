@@ -6,6 +6,9 @@
 constexpr bool DEFAULT_MODE_AUTO = true;
 constexpr bool DEFAULT_USE_FAHRENHEIT = true;
 
+// default uninitialized temp and humidity values
+constexpr float DEFAULT_TEMP_HUMID = -100.0f;
+
 // Default light schedule
 constexpr int DEFAULT_LIGHT_START_HOUR = 8;
 constexpr int DEFAULT_LIGHT_START_MINUTE = 0;

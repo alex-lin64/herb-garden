@@ -41,9 +41,9 @@ struct SystemSettings
 
 struct SensorReadings
 {
-    float temperatureC = 0.0f;
-    float temperatureF = 0.0f;
-    float humidity = 0.0f;
+    float temperatureC = DEFAULT_TEMP_HUMID;
+    float temperatureF = DEFAULT_TEMP_HUMID;
+    float humidity = DEFAULT_TEMP_HUMID;
     bool floatClosed = false;
 };
 
