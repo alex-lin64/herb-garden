@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include "../../src/Helpers/Helpers.h"
+#include "../../src/UI/Screens.h"
 
 void test_celsius_to_fahrenheit()
 {
@@ -24,6 +25,24 @@ void test_temperature_offset()
         celsiusToFahrenheit(0.0f, -1.0f));
 }
 
+void test_next_watering_label_includes_date()
+{
+    struct tm nextWateringTime = {};
+    nextWateringTime.tm_year = 124;
+    nextWateringTime.tm_mon = 9;
+    nextWateringTime.tm_mday = 19;
+    nextWateringTime.tm_hour = 14;
+    nextWateringTime.tm_min = 30;
+
+    char nextWateringText[32];
+    formatNextWateringText(
+        mktime(&nextWateringTime),
+        nextWateringText,
+        sizeof(nextWateringText));
+
+    TEST_ASSERT_EQUAL_STRING("Next: 14:30 10/19", nextWateringText);
+}
+
 void setup()
 {
     delay(2000);
@@ -32,6 +51,7 @@ void setup()
 
     RUN_TEST(test_celsius_to_fahrenheit);
     RUN_TEST(test_temperature_offset);
+    RUN_TEST(test_next_watering_label_includes_date);
 
     UNITY_END();
 }

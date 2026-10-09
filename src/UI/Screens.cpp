@@ -10,6 +10,32 @@ namespace
     constexpr int DISPLAY_HEIGHT = 64;
 }
 
+void formatNextWateringText(
+    time_t nextWatering,
+    char *buffer,
+    size_t bufferSize)
+{
+    if (nextWatering <= 0)
+    {
+        snprintf(buffer, bufferSize, "Next: --/-- --:--");
+        return;
+    }
+
+    struct tm nextTime;
+    localtime_r(
+        &nextWatering,
+        &nextTime);
+
+    snprintf(
+        buffer,
+        bufferSize,
+        "Next: %02d:%02d %02d/%02d",
+        nextTime.tm_hour,
+        nextTime.tm_min,
+        nextTime.tm_mon + 1,
+        nextTime.tm_mday);
+}
+
 void drawHeader(
     Display &display,
     const SystemState &state,
@@ -283,25 +309,12 @@ void drawHomeScreen(
 
     if (state.settings.modeAuto)
     {
-        char nextWaterText[20];
+        char nextWaterText[24];
 
-        if (state.nextWatering > 0)
-        {
-            struct tm nextTime;
-            localtime_r(
-                &state.nextWatering,
-                &nextTime);
-
-            sprintf(
-                nextWaterText,
-                "Next: %02d:%02d",
-                nextTime.tm_hour,
-                nextTime.tm_min);
-        }
-        else
-        {
-            strcpy(nextWaterText, "Next: --:--");
-        }
+        formatNextWateringText(
+            state.nextWatering,
+            nextWaterText,
+            sizeof(nextWaterText));
 
         int nextWidth = display.getStrWidth(nextWaterText);
         int nextX = (DISPLAY_WIDTH - nextWidth) / 2;
