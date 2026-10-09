@@ -730,13 +730,13 @@ void drawWaterScreen(
     snprintf(
         durationValue,
         sizeof(durationValue),
-        "%02dm",
+        "%02ds",
         schedule.durationMinutes);
 
     snprintf(
         frequencyValue,
         sizeof(frequencyValue),
-        "%02dh",
+        "%02dd",
         schedule.frequencyHours);
 
     const char *columnValues[] = {

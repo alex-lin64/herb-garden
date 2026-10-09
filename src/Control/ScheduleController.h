@@ -7,7 +7,8 @@
 bool isDurationScheduleOn(
     const DurationSchedule &schedule,
     time_t anchor,
-    time_t now);
+    time_t now,
+    bool useWaterScale = false);
 
 class ScheduleController
 {

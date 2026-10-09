@@ -15,6 +15,25 @@ namespace
 
     constexpr time_t SECONDS_PER_MINUTE = 60;
     constexpr time_t SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE;
+    constexpr time_t SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;
+
+    time_t scheduleDurationSeconds(
+        const DurationSchedule &schedule,
+        bool useWaterScale)
+    {
+        return useWaterScale
+            ? schedule.durationMinutes
+            : schedule.durationMinutes * SECONDS_PER_MINUTE;
+    }
+
+    time_t schedulePeriodSeconds(
+        const DurationSchedule &schedule,
+        bool useWaterScale)
+    {
+        return useWaterScale
+            ? schedule.frequencyHours * SECONDS_PER_DAY
+            : schedule.frequencyHours * SECONDS_PER_HOUR;
+    }
 
     bool schedulesEqual(
         const DurationSchedule &left,
@@ -28,7 +47,8 @@ namespace
 bool isDurationScheduleOn(
     const DurationSchedule &schedule,
     time_t anchor,
-    time_t now)
+    time_t now,
+    bool useWaterScale)
 {
     if (anchor <= 0 || now < anchor ||
         schedule.frequencyHours <= 0 ||
@@ -38,9 +58,9 @@ bool isDurationScheduleOn(
     }
 
     time_t period =
-        schedule.frequencyHours * SECONDS_PER_HOUR;
+        schedulePeriodSeconds(schedule, useWaterScale);
     time_t duration =
-        schedule.durationMinutes * SECONDS_PER_MINUTE;
+        scheduleDurationSeconds(schedule, useWaterScale);
     time_t elapsed = now - anchor;
 
     if (duration >= period)
@@ -185,11 +205,13 @@ void ScheduleController::resolveAutomaticOutputs(
     state.fansOn = isDurationScheduleOn(
         state.settings.fansSchedule,
         state.fansScheduleAnchor,
-        now);
+        now,
+        false);
     state.watering = isDurationScheduleOn(
         state.settings.waterSchedule,
         state.waterScheduleAnchor,
-        now);
+        now,
+        true);
     state.nextWatering = getNextWateringTime(
         state.settings.waterSchedule,
         state.waterScheduleAnchor,
@@ -245,7 +267,7 @@ time_t ScheduleController::getNextWateringTime(
     }
 
     time_t period =
-        schedule.frequencyHours * SECONDS_PER_HOUR;
+        schedule.frequencyHours * SECONDS_PER_DAY;
 
     if (now < anchor)
         return anchor;

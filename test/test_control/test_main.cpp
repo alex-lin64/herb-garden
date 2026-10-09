@@ -169,6 +169,22 @@ void testDurationScheduleRejectsInvalidValues()
         isDurationScheduleOn(schedule, 1000, 1000));
 }
 
+void testWaterScheduleUsesSecondsAndDays()
+{
+    DurationSchedule schedule;
+    schedule.durationMinutes = 5;
+    schedule.frequencyHours = 2;
+
+    TEST_ASSERT_TRUE(
+        isDurationScheduleOn(schedule, 1000, 1000 + 5, true));
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, 1000 + 5 - 1, true));
+    TEST_ASSERT_FALSE(
+        isDurationScheduleOn(schedule, 1000, 1000 + (2 * 24 * 60 * 60) - 1, true));
+    TEST_ASSERT_TRUE(
+        isDurationScheduleOn(schedule, 1000, 1000 + (2 * 24 * 60 * 60), true));
+}
+
 void testScheduleControllerSetsAutomaticFansState()
 {
     clearSchedulePreferences(scheduleNamespace);
@@ -637,6 +653,7 @@ void setup()
     RUN_TEST(testDurationScheduleTurnsOffAfterDuration);
     RUN_TEST(testDurationScheduleRepeatsAfterFrequency);
     RUN_TEST(testDurationScheduleRejectsInvalidValues);
+    RUN_TEST(testWaterScheduleUsesSecondsAndDays);
 
     RUN_TEST(testDurationScheduleStaysOnWhenDurationEqualsFrequency);
     RUN_TEST(testDurationScheduleStaysOnWhenDurationExceedsFrequency);
